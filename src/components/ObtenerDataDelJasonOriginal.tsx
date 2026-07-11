@@ -11,6 +11,10 @@ import {
   type ToneMap,
 } from './jsonToneShared'
 import { findJsonLineNumber, type JsonLineLookupMode } from './jsonLineLookup'
+import type {
+  JsonItemController,
+  JsonItemSnapshot,
+} from './jsonCompactModels'
 
 type DataItemValueFormatter = (value: unknown, source: unknown) => string
 
@@ -30,10 +34,12 @@ type ObtenerDataDelJasonOriginalProps = {
   mismatchLabels?: string[]
   editedMatchLabels?: string[]
   onLineNumberClick?: (lineNumber: number) => void
+  onControllerReady?: (controller: JsonItemController | null) => void
   onComparableStateChange?: (state: {
     values: Record<string, string>
     dirtyLabels: string[]
   }) => void
+  onItemsSnapshotChange?: (items: JsonItemSnapshot[]) => void
 }
 
 type EditableValuesMap = Record<string, string>
@@ -309,7 +315,9 @@ function ObtenerDataDelJasonOriginal({
   mismatchLabels = [],
   editedMatchLabels = [],
   onLineNumberClick,
+  onControllerReady,
   onComparableStateChange,
+  onItemsSnapshotChange,
 }: ObtenerDataDelJasonOriginalProps) {
   const itemsSignature = getItemsSignature(items)
   const originalValues = buildInitialValues(source, items)
@@ -347,6 +355,27 @@ function ObtenerDataDelJasonOriginal({
     return currentValue !== originalValues[itemKey] ? [item.label] : []
   })
   const dirtyLabelsSignature = JSON.stringify(dirtyLabels)
+  const snapshotItemsJson = JSON.stringify(
+    items.map((item) => {
+      const itemKey = getItemKey(item)
+      const toneKey = getToneKey(item)
+      const originalValue = originalValues[itemKey]
+      const currentValue = editableValues[itemKey] ?? originalValue
+
+      return {
+        id: itemKey,
+        label: item.label,
+        value: currentValue,
+        tone: toneAssignments[toneKey] ?? item.tone ?? 'gray',
+        isEditable: true,
+        isDirty: currentValue !== originalValue,
+        hasMismatch: mismatchLabelSet.has(item.label),
+        hasEditedMatch:
+          !mismatchLabelSet.has(item.label) &&
+          editedMatchLabelSet.has(item.label),
+      } satisfies JsonItemSnapshot
+    }),
+  )
 
   useEffect(() => {
     const toneOverrides =
@@ -391,6 +420,59 @@ function ObtenerDataDelJasonOriginal({
       dirtyLabels: JSON.parse(dirtyLabelsSignature) as string[],
     })
   }, [currentValuesSignature, dirtyLabelsSignature, onComparableStateChange])
+
+  useEffect(() => {
+    onItemsSnapshotChange?.(JSON.parse(snapshotItemsJson) as JsonItemSnapshot[])
+  }, [onItemsSnapshotChange, snapshotItemsJson])
+
+  useEffect(() => {
+    if (!onControllerReady) {
+      return
+    }
+
+    const originalValuesById = JSON.parse(sourceSignature) as EditableValuesMap
+
+    const controller: JsonItemController = {
+      setValue(itemId, nextValue) {
+        const originalValue = originalValuesById[itemId]
+
+        if (typeof originalValue !== 'string') {
+          return
+        }
+
+        setEditableState((currentState) => {
+          const currentValues =
+            currentState.sourceSignature === sourceSignature
+              ? currentState.values
+              : {}
+
+          if (nextValue === originalValue) {
+            const remainingValues = { ...currentValues }
+            delete remainingValues[itemId]
+
+            return {
+              sourceSignature,
+              values: remainingValues,
+            }
+          }
+
+          return {
+            sourceSignature,
+            values: {
+              ...currentValues,
+              [itemId]: nextValue,
+            },
+          }
+        })
+      },
+    }
+
+    onControllerReady(controller)
+
+    return () => {
+      onControllerReady(null)
+    }
+  }, [onControllerReady, sourceSignature])
 
   function handleValueChange(
     itemKey: string,

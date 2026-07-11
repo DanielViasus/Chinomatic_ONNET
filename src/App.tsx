@@ -1,9 +1,20 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from 'react'
 import { flushSync } from 'react-dom'
 import './App.css'
+import CompactReferenceBar from './components/CompactReferenceBar'
 import ObtenerDataDelJasonComplementario from './components/ObtenerDataDelJasonComplementario'
 import ObtenerDataDelJasonOriginal from './components/ObtenerDataDelJasonOriginal'
 import Selector_Tema from './components/Selector_Tema'
+import type {
+  JsonItemController,
+  JsonItemSnapshot,
+} from './components/jsonCompactModels'
 
 const sampleService = {
   id: 'c84f6b2f-7bde-11f1-823a-37f73621a399',
@@ -751,6 +762,18 @@ function buildEditorHighlightStyle(
   } as CSSProperties
 }
 
+function mergeCompactItems(
+  primaryItems: JsonItemSnapshot[],
+  secondaryItems: JsonItemSnapshot[],
+): JsonItemSnapshot[] {
+  const primaryLabels = new Set(primaryItems.map((item) => item.label))
+
+  return [
+    ...primaryItems,
+    ...secondaryItems.filter((item) => !primaryLabels.has(item.label)),
+  ]
+}
+
 function App() {
   const [initialPrimaryState] = useState(() =>
     createInitialEditorState(primaryJsonStorageKey, initialJson),
@@ -802,10 +825,20 @@ function App() {
       ? storedTheme
       : 'dark'
   })
+  const [primarySnapshotItems, setPrimarySnapshotItems] = useState<
+    JsonItemSnapshot[]
+  >([])
+  const [secondarySnapshotItems, setSecondarySnapshotItems] = useState<
+    JsonItemSnapshot[]
+  >([])
+  const [primaryController, setPrimaryController] =
+    useState<JsonItemController | null>(null)
+  const panelRef = useRef<HTMLElement | null>(null)
   const lineNumbersRef = useRef<HTMLDivElement | null>(null)
   const secondaryLineNumbersRef = useRef<HTMLDivElement | null>(null)
   const primaryEditorRef = useRef<HTMLTextAreaElement | null>(null)
   const secondaryEditorRef = useRef<HTMLTextAreaElement | null>(null)
+  const [panelPlaceholderHeight, setPanelPlaceholderHeight] = useState(0)
   const [primaryEditorScrollTop, setPrimaryEditorScrollTop] = useState(0)
   const [secondaryEditorScrollTop, setSecondaryEditorScrollTop] = useState(0)
   const [primaryEditorHighlight, setPrimaryEditorHighlight] =
@@ -846,6 +879,16 @@ function App() {
     secondaryEditorHighlight,
     secondaryEditorScrollTop,
   )
+  const compactReferenceItems = mergeCompactItems(
+    primarySnapshotItems,
+    secondarySnapshotItems,
+  )
+  const canShowCompactReference =
+    compactReferenceItems.length > 0 &&
+    !parseError &&
+    !parseErrorSecondary &&
+    !isPrimaryEditorEmpty &&
+    !isSecondaryEditorEmpty
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
@@ -867,6 +910,41 @@ function App() {
 
     window.localStorage.setItem(secondaryJsonStorageKey, rawJsonSecondary)
   }, [rawJsonSecondary])
+
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    const panelElement = panelRef.current
+
+    if (!panelElement) {
+      return
+    }
+
+    const currentPanelElement = panelElement
+
+    function syncPanelPlaceholderHeight() {
+      setPanelPlaceholderHeight(currentPanelElement.getBoundingClientRect().height)
+    }
+
+    syncPanelPlaceholderHeight()
+
+    const resizeObserver =
+      typeof ResizeObserver === 'undefined'
+        ? null
+        : new ResizeObserver(() => {
+            syncPanelPlaceholderHeight()
+          })
+
+    resizeObserver?.observe(currentPanelElement)
+    window.addEventListener('resize', syncPanelPlaceholderHeight)
+
+    return () => {
+      resizeObserver?.disconnect()
+      window.removeEventListener('resize', syncPanelPlaceholderHeight)
+    }
+  }, [rawJson, rawJsonSecondary, parseError, parseErrorSecondary])
 
   function handleRawJsonChange(nextRawJson: string) {
     setRawJson(nextRawJson)
@@ -971,6 +1049,7 @@ function App() {
     setParsedJson(null)
     setPrimaryEditorHighlight(null)
     setPrimaryEditorScrollTop(0)
+    setPrimarySnapshotItems([])
   }
 
   function handleClearSecondaryJson() {
@@ -987,6 +1066,7 @@ function App() {
     setParsedJsonSecondary(null)
     setSecondaryEditorHighlight(null)
     setSecondaryEditorScrollTop(0)
+    setSecondarySnapshotItems([])
   }
 
   function applyTheme(nextTheme: ThemeMode) {
@@ -1012,6 +1092,13 @@ function App() {
     applyTheme(theme === 'dark' ? 'light' : 'dark')
   }
 
+  function handleCompactReferenceValueChange(
+    itemId: string,
+    nextValue: string,
+  ) {
+    primaryController?.setValue(itemId, nextValue)
+  }
+
   return (
     <main className="app-shell app-shell--minimal">
       <Selector_Tema
@@ -1025,7 +1112,7 @@ function App() {
       </section>
 
       <div className="workspace-stack">
-        <section className="panel">
+        <section ref={panelRef} className="panel">
           <div className="panel__header">
             <div>
               <p className="panel__eyebrow">Entrada</p>
@@ -1130,7 +1217,9 @@ function App() {
                   sourceText={rawJson}
                   mismatchLabels={mismatchLabels}
                   editedMatchLabels={editedMatchLabels}
+                  onControllerReady={setPrimaryController}
                   onComparableStateChange={setPrimaryComparableState}
+                  onItemsSnapshotChange={setPrimarySnapshotItems}
                   onLineNumberClick={(lineNumber) =>
                     handleLineNumberClick('primary', lineNumber)
                   }
@@ -1296,6 +1385,7 @@ function App() {
                   mismatchLabels={mismatchLabels}
                   editedMatchLabels={editedMatchLabels}
                   onComparableStateChange={setSecondaryComparableState}
+                  onItemsSnapshotChange={setSecondarySnapshotItems}
                   onLineNumberClick={(lineNumber) =>
                     handleLineNumberClick('secondary', lineNumber)
                   }
@@ -1304,6 +1394,37 @@ function App() {
             </section>
           </div>
         </section>
+
+        <CompactReferenceBar
+          isVisible={canShowCompactReference}
+          items={compactReferenceItems}
+          onEditableValueChange={handleCompactReferenceValueChange}
+        />
+
+        <div
+          className="panel-placeholder"
+          style={{ height: `${panelPlaceholderHeight}px` }}
+          aria-hidden="true"
+        >
+          <div className="panel-placeholder__header">
+            <div className="panel-placeholder__eyebrow" />
+            <div className="panel-placeholder__title" />
+          </div>
+
+          <div className="panel-placeholder__grid">
+            <div className="panel-placeholder__column panel-placeholder__column--primary">
+              <div className="panel-placeholder__block panel-placeholder__block--hero" />
+              <div className="panel-placeholder__block panel-placeholder__block--status" />
+              <div className="panel-placeholder__block panel-placeholder__block--table" />
+            </div>
+
+            <div className="panel-placeholder__column panel-placeholder__column--secondary">
+              <div className="panel-placeholder__block panel-placeholder__block--hero" />
+              <div className="panel-placeholder__block panel-placeholder__block--status" />
+              <div className="panel-placeholder__block panel-placeholder__block--table" />
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   )

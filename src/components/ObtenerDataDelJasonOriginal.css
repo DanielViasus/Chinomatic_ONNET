@@ -281,53 +281,36 @@
 }
 
 .obtener-data-jason-original__value-preview--rich {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  flex-wrap: wrap;
-  overflow: visible;
-  white-space: normal;
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
   text-align: left;
-  text-overflow: clip;
+  text-overflow: ellipsis;
   direction: ltr;
   unicode-bidi: normal;
 }
 
-.obtener-data-jason-original__value-chip {
-  display: inline-flex;
-  gap: 6px;
-  align-items: center;
-  max-width: 100%;
-  padding: 4px 8px;
-  border: 1px solid color-mix(in srgb, currentColor 42%, transparent);
-  border-radius: 999px;
-  background: color-mix(in srgb, currentColor 12%, transparent);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+.obtener-data-jason-original__value-inline-part {
+  color: inherit;
 }
 
-.obtener-data-jason-original__value-chip--primary {
-  background: color-mix(in srgb, currentColor 16%, transparent);
+.obtener-data-jason-original__value-inline-part--primary {
+  color: currentColor;
 }
 
-.obtener-data-jason-original__value-chip--secondary {
-  border-style: dashed;
-  background: color-mix(in srgb, currentColor 8%, transparent);
-  opacity: 0.9;
+.obtener-data-jason-original__value-inline-part--secondary {
+  color: color-mix(in srgb, currentColor 70%, white 30%);
 }
 
-.obtener-data-jason-original__value-chip-prefix {
-  flex-shrink: 0;
-  font-size: 0.68rem;
-  letter-spacing: 0.14em;
+.obtener-data-jason-original__value-inline-prefix {
+  font-size: 0.72em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  opacity: 0.82;
+  opacity: 0.88;
 }
 
-.obtener-data-jason-original__value-chip-text {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.obtener-data-jason-original__value-inline-separator {
+  color: color-mix(in srgb, currentColor 52%, transparent);
 }
 
 .obtener-data-jason-original__value-field {

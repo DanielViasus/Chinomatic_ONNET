@@ -11,6 +11,7 @@ import {
   type ToneMap,
 } from './jsonToneShared'
 import { findJsonLineNumber, type JsonLineLookupMode } from './jsonLineLookup'
+import type { JsonItemSnapshot } from './jsonCompactModels'
 
 type DataItemValueFormatter = (value: unknown, source: unknown) => string
 type ComplementaryLineLookupConfig = {
@@ -18,6 +19,10 @@ type ComplementaryLineLookupConfig = {
   expectedValue?: string
   mode?: JsonLineLookupMode
 }
+type ComplementaryLineLookupResult =
+  | ComplementaryLineLookupConfig
+  | ComplementaryLineLookupConfig[]
+  | null
 type ComplementaryValuePreviewContext = {
   source: unknown
   value: string
@@ -34,7 +39,7 @@ type ComplementaryDataItem = {
   renderValuePreview?: (
     context: ComplementaryValuePreviewContext,
   ) => ReactNode
-  resolveLineLookup?: (source: unknown) => ComplementaryLineLookupConfig | null
+  resolveLineLookup?: (source: unknown) => ComplementaryLineLookupResult
   lineSearchKey: string
   lineLookupMode?: JsonLineLookupMode
 }
@@ -50,6 +55,7 @@ type ObtenerDataDelJasonComplementarioProps = {
     values: Record<string, string>
     dirtyLabels: string[]
   }) => void
+  onItemsSnapshotChange?: (items: JsonItemSnapshot[]) => void
 }
 
 type EditableValuesMap = Record<string, string>
@@ -60,6 +66,10 @@ type EditableState = {
 type ToneState = {
   itemsSignature: string
   overrides: ToneMap
+}
+type LineToggleState = {
+  sourceSignature: string
+  indices: Record<string, number>
 }
 
 const legacyColorStorageKey = 'chinomatic-secondary-json-item-color-overrides-v1'
@@ -189,6 +199,21 @@ function resolveOnuIdValue(source: unknown): string {
   return normalizeCompactStringValue(onuIdValue)
 }
 
+function resolveNetworkVlanValue(source: unknown): string {
+  const networkVlanValue = readProductCharacteristicValue(
+    source,
+    'Network_VLAN_BA',
+  )
+
+  return normalizeCompactStringValue(networkVlanValue)
+}
+
+function resolveCtoNameValue(source: unknown): string {
+  const ctoNameValue = readRootCharacteristicValue(source, 'CTOName')
+
+  return normalizeCompactStringValue(ctoNameValue)
+}
+
 function normalizeOptionalStringValue(value: unknown): string | null {
   if (value === undefined || value === null) {
     return null
@@ -255,17 +280,18 @@ function resolvePasswordComparableValue(source: unknown): string {
 
 function resolvePasswordLineLookup(
   source: unknown,
-): ComplementaryLineLookupConfig | null {
+): ComplementaryLineLookupResult {
   const passwordValue = normalizeOptionalStringValue(
     readRootCharacteristicValue(source, 'PasswordId'),
   )
+  const lineLookups: ComplementaryLineLookupConfig[] = []
 
   if (passwordValue) {
-    return {
+    lineLookups.push({
       searchKey: 'PasswordId',
       expectedValue: passwordValue,
       mode: 'characteristic',
-    }
+    })
   }
 
   const serialValue = normalizeOptionalStringValue(
@@ -273,39 +299,46 @@ function resolvePasswordLineLookup(
   )
 
   if (serialValue) {
-    return {
+    lineLookups.push({
       searchKey: 'serialId',
       expectedValue: serialValue,
       mode: 'characteristic',
-    }
+    })
   }
 
-  return null
+  return lineLookups.length > 0 ? lineLookups : null
 }
 
 function renderPasswordValuePreview({
   source,
 }: ComplementaryValuePreviewContext): ReactNode {
   const passwordValueParts = resolvePasswordValueParts(source)
+  const hasMultipleParts = passwordValueParts.length > 1
 
   if (passwordValueParts.length === 0) {
     return 'Sin dato disponible'
   }
 
   return passwordValueParts.map((part, index) => (
-    <span
-      key={`${part.id}-${part.value}-${index}`}
-      className={`obtener-data-jason-original__value-chip ${
-        part.id === 'password'
-          ? 'obtener-data-jason-original__value-chip--primary'
-          : 'obtener-data-jason-original__value-chip--secondary'
-      }`}
-    >
-      <span className="obtener-data-jason-original__value-chip-prefix">
-        {part.prefix}
-      </span>
-      <span className="obtener-data-jason-original__value-chip-text">
-        {part.value}
+    <span key={`${part.id}-${part.value}-${index}`}>
+      {index > 0 ? (
+        <span className="obtener-data-jason-original__value-inline-separator">
+          {' | '}
+        </span>
+      ) : null}
+      <span
+        className={`obtener-data-jason-original__value-inline-part ${
+          hasMultipleParts
+            ? part.id === 'password'
+              ? 'obtener-data-jason-original__value-inline-part--primary'
+              : 'obtener-data-jason-original__value-inline-part--secondary'
+            : ''
+        }`}
+      >
+        <span className="obtener-data-jason-original__value-inline-prefix">
+          {part.prefix}
+        </span>
+        {`: ${part.value}`}
       </span>
     </span>
   ))
@@ -366,16 +399,14 @@ const complementaryItems: ComplementaryDataItem[] = [
     id: 'network-vlan',
     label: 'NETWORKVLAN',
     tone: 'orange',
-    resolveValue: (source) =>
-      readProductCharacteristicValue(source, 'Network_VLAN_BA'),
+    resolveValue: resolveNetworkVlanValue,
     lineSearchKey: 'Network_VLAN_BA',
     lineLookupMode: 'characteristic',
   },
   {
     id: 'cto-name',
     label: 'CTONAME',
-    resolveValue: (source) => readRootCharacteristicValue(source, 'CTOName'),
-    formatValue: (value) => normalizeCompactStringValue(value),
+    resolveValue: resolveCtoNameValue,
     lineSearchKey: 'CTOName',
     lineLookupMode: 'characteristic',
   },
@@ -578,6 +609,49 @@ function buildComparableValues(
   )
 }
 
+function resolveLineLookupConfigs(
+  source: unknown,
+  sourceText: string,
+  item: ComplementaryDataItem,
+  originalValue: string,
+): ComplementaryLineLookupConfig[] {
+  const resolvedLineLookup = item.resolveLineLookup?.(source)
+
+  if (!resolvedLineLookup) {
+    return sourceText.trim().length === 0
+      ? []
+      : [
+          {
+            mode: item.lineLookupMode ?? 'property',
+            searchKey: item.lineSearchKey,
+            expectedValue: originalValue,
+          },
+        ]
+  }
+
+  return Array.isArray(resolvedLineLookup)
+    ? resolvedLineLookup
+    : [resolvedLineLookup]
+}
+
+function resolveLineNumbers(
+  sourceText: string,
+  lineLookupConfigs: ComplementaryLineLookupConfig[],
+): number[] {
+  const resolvedLineNumbers = lineLookupConfigs.flatMap((lineLookupConfig) => {
+    const lineNumber = findJsonLineNumber({
+      mode: lineLookupConfig.mode ?? 'property',
+      searchKey: lineLookupConfig.searchKey,
+      sourceText,
+      expectedValue: lineLookupConfig.expectedValue,
+    })
+
+    return typeof lineNumber === 'number' ? [lineNumber] : []
+  })
+
+  return Array.from(new Set(resolvedLineNumbers))
+}
+
 function readStoredToneOverrides(items: ComplementaryDataItem[]): ToneMap {
   const combinedOverrides = pickRelevantToneOverrides(
     items,
@@ -605,6 +679,7 @@ function ObtenerDataDelJasonComplementario({
   editedMatchLabels = [],
   onLineNumberClick,
   onComparableStateChange,
+  onItemsSnapshotChange,
 }: ObtenerDataDelJasonComplementarioProps) {
   const itemsSignature = getItemsSignature(complementaryItems)
   const originalValues = buildInitialValues(source, complementaryItems)
@@ -623,9 +698,17 @@ function ObtenerDataDelJasonComplementario({
     itemsSignature,
     overrides: readStoredToneOverrides(complementaryItems),
   }))
+  const [lineToggleState, setLineToggleState] = useState<LineToggleState>(() => ({
+    sourceSignature,
+    indices: {},
+  }))
   const editableValues =
     editableState.sourceSignature === sourceSignature
       ? editableState.values
+      : {}
+  const activeLineToggleIndices =
+    lineToggleState.sourceSignature === sourceSignature
+      ? lineToggleState.indices
       : {}
   const hasDirtyValues =
     allowValueEditing && Object.keys(editableValues).length > 0
@@ -655,6 +738,27 @@ function ObtenerDataDelJasonComplementario({
       })
     : []
   const dirtyLabelsSignature = JSON.stringify(dirtyLabels)
+  const snapshotItemsJson = JSON.stringify(
+    complementaryItems.map((item) => {
+      const itemKey = getItemKey(item)
+      const toneKey = getToneKey(item)
+      const originalValue = originalValues[itemKey]
+      const currentValue = editableValues[itemKey] ?? originalValue
+
+      return {
+        id: itemKey,
+        label: item.label,
+        value: currentValue,
+        tone: toneAssignments[toneKey] ?? item.tone ?? 'gray',
+        isEditable: allowValueEditing,
+        isDirty: currentValue !== originalValue,
+        hasMismatch: mismatchLabelSet.has(item.label),
+        hasEditedMatch:
+          !mismatchLabelSet.has(item.label) &&
+          editedMatchLabelSet.has(item.label),
+      } satisfies JsonItemSnapshot
+    }),
+  )
 
   useEffect(() => {
     const toneOverrides =
@@ -699,6 +803,10 @@ function ObtenerDataDelJasonComplementario({
       dirtyLabels: JSON.parse(dirtyLabelsSignature) as string[],
     })
   }, [currentValuesSignature, dirtyLabelsSignature, onComparableStateChange])
+
+  useEffect(() => {
+    onItemsSnapshotChange?.(JSON.parse(snapshotItemsJson) as JsonItemSnapshot[])
+  }, [onItemsSnapshotChange, snapshotItemsJson])
 
   function handleValueChange(
     itemKey: string,
@@ -841,6 +949,33 @@ function ObtenerDataDelJasonComplementario({
     })
   }
 
+  function handleLineMetadataClick(itemKey: string, lineNumbers: number[]) {
+    if (!onLineNumberClick || lineNumbers.length === 0) {
+      return
+    }
+
+    const currentLineIndex = activeLineToggleIndices[itemKey] ?? 0
+    const nextLineNumber = lineNumbers[currentLineIndex % lineNumbers.length]
+
+    onLineNumberClick(nextLineNumber)
+    setLineToggleState((currentState) => {
+      const currentIndices =
+        currentState.sourceSignature === sourceSignature
+          ? currentState.indices
+          : {}
+      const nextLineIndex =
+        ((currentIndices[itemKey] ?? 0) + 1) % lineNumbers.length
+
+      return {
+        sourceSignature,
+        indices: {
+          ...currentIndices,
+          [itemKey]: nextLineIndex,
+        },
+      }
+    })
+  }
+
   return (
     <section className="obtener-data-jason-original">
       <div className="obtener-data-jason-original__header">
@@ -876,19 +1011,13 @@ function ObtenerDataDelJasonComplementario({
           const hasMismatch = mismatchLabelSet.has(item.label)
           const hasEditedMatch =
             !hasMismatch && editedMatchLabelSet.has(item.label)
-          const lineLookupConfig = item.resolveLineLookup?.(source) ?? {
-            mode: item.lineLookupMode ?? 'property',
-            searchKey: item.lineSearchKey,
-            expectedValue: originalValue,
-          }
-          const lineNumber = lineLookupConfig
-            ? findJsonLineNumber({
-                mode: lineLookupConfig.mode ?? 'property',
-                searchKey: lineLookupConfig.searchKey,
-                sourceText,
-                expectedValue: lineLookupConfig.expectedValue,
-              })
-            : null
+          const lineLookupConfigs = resolveLineLookupConfigs(
+            source,
+            sourceText,
+            item,
+            originalValue,
+          )
+          const lineNumbers = resolveLineNumbers(sourceText, lineLookupConfigs)
           const customValuePreview = item.renderValuePreview?.({
             source,
             value: currentValue,
@@ -962,19 +1091,19 @@ function ObtenerDataDelJasonComplementario({
                 ) : null}
               </div>
 
-              {lineNumber ? (
+              {lineNumbers.length > 0 ? (
                 onLineNumberClick ? (
                   <button
                     type="button"
                     className="obtener-data-jason-original__line-meta"
-                    onClick={() => onLineNumberClick(lineNumber)}
-                    aria-label={`Ir a la linea ${lineNumber} para ${item.label}`}
+                    onClick={() => handleLineMetadataClick(itemKey, lineNumbers)}
+                    aria-label={`Ir a la linea ${lineNumbers.join(',')} para ${item.label}`}
                   >
-                    {`(line ${lineNumber})`}
+                    {`(line ${lineNumbers.join(',')})`}
                   </button>
                 ) : (
                   <span className="obtener-data-jason-original__line-meta">
-                    {`(line ${lineNumber})`}
+                    {`(line ${lineNumbers.join(',')})`}
                   </span>
                 )
               ) : null}

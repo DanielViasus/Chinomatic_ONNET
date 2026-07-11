@@ -11,6 +11,18 @@ function normalizeSearchToken(value: string | undefined): string {
   return (value ?? '').trim()
 }
 
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+function isCharacteristicNameLine(line: string, searchKey: string): boolean {
+  const characteristicNamePattern = new RegExp(
+    `"name"\\s*:\\s*"${escapeRegExp(searchKey)}"`,
+  )
+
+  return characteristicNamePattern.test(line)
+}
+
 function findLineNumberByProperty(
   sourceText: string,
   searchKey: string,
@@ -44,15 +56,21 @@ function findLineNumberByCharacteristic(
 ): number | null {
   const lines = sourceText.split('\n')
   const normalizedValue = normalizeSearchToken(expectedValue)
-  const characteristicIndex = lines.findIndex((line) => line.includes(searchKey))
+  const characteristicIndex = lines.findIndex((line) =>
+    isCharacteristicNameLine(line, searchKey),
+  )
+  const fallbackCharacteristicIndex =
+    characteristicIndex !== -1
+      ? characteristicIndex
+      : lines.findIndex((line) => line.includes(searchKey))
 
-  if (characteristicIndex === -1) {
+  if (fallbackCharacteristicIndex === -1) {
     return null
   }
 
   for (
-    let lineIndex = characteristicIndex;
-    lineIndex < Math.min(characteristicIndex + 8, lines.length);
+    let lineIndex = fallbackCharacteristicIndex;
+    lineIndex < Math.min(fallbackCharacteristicIndex + 8, lines.length);
     lineIndex += 1
   ) {
     const currentLine = lines[lineIndex]
@@ -67,7 +85,7 @@ function findLineNumberByCharacteristic(
     }
   }
 
-  return characteristicIndex + 1
+  return fallbackCharacteristicIndex + 1
 }
 
 export function findJsonLineNumber({
