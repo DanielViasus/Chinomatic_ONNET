@@ -347,6 +347,7 @@ const initialComplementaryJson = JSON.stringify(sampleComplementaryService, null
 const themeStorageKey = 'chinomatic-theme'
 const primaryJsonStorageKey = 'chinomatic-primary-json'
 const secondaryJsonStorageKey = 'chinomatic-secondary-json'
+const itemVisibilityStorageKey = 'chinomatic-item-visibility'
 
 type ParseResult = {
   error: string | null
@@ -693,6 +694,35 @@ function readStoredJson(storageKey: string, fallbackRawJson: string): string {
   return window.localStorage.getItem(storageKey) ?? fallbackRawJson
 }
 
+function readStoredItemVisibility(): Record<string, boolean> {
+  if (typeof window === 'undefined') {
+    return {}
+  }
+
+  try {
+    const storedValue = window.localStorage.getItem(itemVisibilityStorageKey)
+
+    if (!storedValue) {
+      return {}
+    }
+
+    const parsedValue: unknown = JSON.parse(storedValue)
+
+    if (!isRecord(parsedValue)) {
+      return {}
+    }
+
+    return Object.fromEntries(
+      Object.entries(parsedValue).filter(
+        ([label, isVisible]) =>
+          label.trim().length > 0 && typeof isVisible === 'boolean',
+      ),
+    ) as Record<string, boolean>
+  } catch {
+    return {}
+  }
+}
+
 function createInitialEditorState(
   storageKey: string,
   fallbackRawJson: string,
@@ -848,7 +878,7 @@ function App() {
   >([])
   const [itemVisibilityByLabel, setItemVisibilityByLabel] = useState<
     Record<string, boolean>
-  >({})
+  >(readStoredItemVisibility)
   const [primaryController, setPrimaryController] =
     useState<JsonItemController | null>(null)
   const panelRef = useRef<HTMLElement | null>(null)
@@ -928,6 +958,17 @@ function App() {
 
     window.localStorage.setItem(secondaryJsonStorageKey, rawJsonSecondary)
   }, [rawJsonSecondary])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    window.localStorage.setItem(
+      itemVisibilityStorageKey,
+      JSON.stringify(itemVisibilityByLabel),
+    )
+  }, [itemVisibilityByLabel])
 
   useLayoutEffect(() => {
     if (typeof window === 'undefined') {
@@ -1137,6 +1178,80 @@ function App() {
     setSecondarySnapshotItems([])
   }
 
+  async function handlePasteFromClipboard(
+    editorKind: 'primary' | 'secondary',
+  ) {
+    if (!navigator.clipboard?.readText) {
+      const message = 'El navegador no permite leer el portapapeles.'
+
+      if (editorKind === 'primary') {
+        setParseError(message)
+      } else {
+        setParseErrorSecondary(message)
+      }
+
+      return
+    }
+
+    try {
+      const clipboardText = await navigator.clipboard.readText()
+
+      if (clipboardText.trim().length === 0) {
+        const message = 'No hay texto disponible para pegar.'
+
+        if (editorKind === 'primary') {
+          setParseError(message)
+        } else {
+          setParseErrorSecondary(message)
+        }
+
+        return
+      }
+
+      const nextText =
+        formatStructuredJsonForEditor(clipboardText) ?? clipboardText
+
+      if (editorKind === 'primary') {
+        handleRawJsonChange(nextText)
+        setPrimaryEditorHighlight(null)
+        setPrimaryEditorScrollTop(0)
+      } else {
+        handleSecondaryRawJsonChange(nextText)
+        setSecondaryEditorHighlight(null)
+        setSecondaryEditorScrollTop(0)
+      }
+
+      window.requestAnimationFrame(() => {
+        const editor =
+          editorKind === 'primary'
+            ? primaryEditorRef.current
+            : secondaryEditorRef.current
+        const lineNumbersElement =
+          editorKind === 'primary'
+            ? lineNumbersRef.current
+            : secondaryLineNumbersRef.current
+
+        if (editor) {
+          editor.scrollTop = 0
+          editor.setSelectionRange(0, 0)
+          editor.focus()
+        }
+
+        if (lineNumbersElement) {
+          lineNumbersElement.scrollTop = 0
+        }
+      })
+    } catch {
+      const message = 'No se pudo acceder al portapapeles.'
+
+      if (editorKind === 'primary') {
+        setParseError(message)
+      } else {
+        setParseErrorSecondary(message)
+      }
+    }
+  }
+
   function applyTheme(nextTheme: ThemeMode) {
     if (nextTheme === theme) {
       return
@@ -1210,15 +1325,14 @@ function App() {
 
                   <button
                     type="button"
-                    className={`panel__pill panel__pill--action ${
-                      isPrimaryEditorEmpty ? 'panel__pill--hidden' : ''
-                    }`}
-                    onClick={handleClearPrimaryJson}
-                    disabled={isPrimaryEditorEmpty}
-                    tabIndex={isPrimaryEditorEmpty ? -1 : 0}
-                    aria-hidden={isPrimaryEditorEmpty}
+                    className="panel__pill panel__pill--action"
+                    onClick={() =>
+                      isPrimaryEditorEmpty
+                        ? void handlePasteFromClipboard('primary')
+                        : handleClearPrimaryJson()
+                    }
                   >
-                    Borrar todo
+                    {isPrimaryEditorEmpty ? 'Pegar' : 'Borrar todo'}
                   </button>
                 </div>
 
@@ -1384,15 +1498,14 @@ function App() {
 
                   <button
                     type="button"
-                    className={`panel__pill panel__pill--action ${
-                      isSecondaryEditorEmpty ? 'panel__pill--hidden' : ''
-                    }`}
-                    onClick={handleClearSecondaryJson}
-                    disabled={isSecondaryEditorEmpty}
-                    tabIndex={isSecondaryEditorEmpty ? -1 : 0}
-                    aria-hidden={isSecondaryEditorEmpty}
+                    className="panel__pill panel__pill--action"
+                    onClick={() =>
+                      isSecondaryEditorEmpty
+                        ? void handlePasteFromClipboard('secondary')
+                        : handleClearSecondaryJson()
+                    }
                   >
-                    Borrar todo
+                    {isSecondaryEditorEmpty ? 'Pegar' : 'Borrar todo'}
                   </button>
                 </div>
 

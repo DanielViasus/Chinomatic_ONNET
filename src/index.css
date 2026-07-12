@@ -157,6 +157,8 @@
 
 html {
   background: var(--paper);
+  scrollbar-gutter: stable;
+  overscroll-behavior-y: none;
 }
 
 body {
@@ -177,8 +179,8 @@ body::before {
   z-index: 0;
   background: var(--logo-mosaic-gradient);
   opacity: 0.1;
-  filter: blur(1.8px);
   transform: scale(1.04);
+  contain: strict;
   -webkit-mask-image: url('/lobo_basico_ONNET.svg');
   -webkit-mask-repeat: repeat;
   -webkit-mask-size: 124px 124px;
@@ -200,6 +202,7 @@ body::after {
     linear-gradient(90deg, var(--line) 1px, transparent 1px);
   background-size: 32px 32px;
   mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.6), transparent 78%);
+  contain: strict;
 }
 
 #root {

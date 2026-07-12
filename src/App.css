@@ -151,7 +151,6 @@
     linear-gradient(180deg, rgba(255, 255, 255, 0.018), rgba(255, 255, 255, 0.008)),
     var(--panel);
   box-shadow: var(--shadow-md);
-  backdrop-filter: blur(18px);
 }
 
 .panel-placeholder {
@@ -167,7 +166,8 @@
     linear-gradient(180deg, rgba(255, 255, 255, 0.018), rgba(255, 255, 255, 0.008)),
     var(--panel);
   box-shadow: var(--shadow-md);
-  backdrop-filter: blur(18px);
+  content-visibility: auto;
+  contain-intrinsic-size: auto 1200px;
   pointer-events: none;
 }
 
@@ -259,7 +259,6 @@
   border-radius: 16px;
   background: var(--panel);
   box-shadow: var(--shadow-md);
-  backdrop-filter: blur(18px);
 }
 
 .panel--retracted {
@@ -439,7 +438,6 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.03),
     0 0 0 1px color-mix(in srgb, var(--workspace-border) 48%, transparent),
     0 18px 36px color-mix(in srgb, var(--workspace-editor-shadow) 42%, transparent);
-  backdrop-filter: blur(18px) saturate(1.04);
 }
 
 .json-workspace-primary {
@@ -593,7 +591,6 @@
     0 0 0 1px color-mix(in srgb, var(--workspace-editor-border, transparent) 48%, transparent),
     inset 0 0 32px color-mix(in srgb, var(--workspace-editor-shadow, transparent) 18%, transparent),
     0 0 36px color-mix(in srgb, var(--workspace-editor-shadow, transparent) 14%, transparent);
-  backdrop-filter: blur(12px) saturate(1.04);
 }
 
 .editor-lines,

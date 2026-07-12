@@ -8,6 +8,9 @@
   transform: translateY(-12px);
   overflow: hidden;
   pointer-events: none;
+  isolation: isolate;
+  will-change: transform;
+  backface-visibility: hidden;
   transition:
     opacity 140ms ease,
     transform 140ms ease;
@@ -344,5 +347,16 @@
   .compact-reference__item {
     flex-basis: 100%;
     padding-inline: 9px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .compact-reference {
+    transition: none;
+  }
+
+  .compact-reference__item--mismatch,
+  .compact-reference__item--edited-match {
+    animation: none;
   }
 }
