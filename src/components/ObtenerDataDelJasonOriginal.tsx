@@ -10,7 +10,9 @@ import {
   type DataItemTone,
   type ToneMap,
 } from './jsonToneShared'
+import CloneIcon from './CloneIcon'
 import { findJsonLineNumber, type JsonLineLookupMode } from './jsonLineLookup'
+import CornerUpLeftIcon from './CornerUpLeftIcon'
 import VisibilityToggleIcon from './VisibilityToggleIcon'
 import type {
   JsonItemController,
@@ -41,6 +43,8 @@ type ObtenerDataDelJasonOriginalProps = {
     dirtyLabels: string[]
   }) => void
   onItemsSnapshotChange?: (items: JsonItemSnapshot[]) => void
+  visibilityByLabel?: Record<string, boolean>
+  onVisibilityToggle?: (label: string) => void
 }
 
 type EditableValuesMap = Record<string, string>
@@ -319,6 +323,8 @@ function ObtenerDataDelJasonOriginal({
   onControllerReady,
   onComparableStateChange,
   onItemsSnapshotChange,
+  visibilityByLabel = {},
+  onVisibilityToggle,
 }: ObtenerDataDelJasonOriginalProps) {
   const itemsSignature = getItemsSignature(items)
   const originalValues = buildInitialValues(source, items)
@@ -333,9 +339,6 @@ function ObtenerDataDelJasonOriginal({
     itemsSignature,
     overrides: readStoredToneOverrides(items),
   }))
-  const [itemVisibilityState, setItemVisibilityState] = useState<
-    Record<string, boolean>
-  >({})
   const editableValues =
     editableState.sourceSignature === sourceSignature
       ? editableState.values
@@ -603,13 +606,6 @@ function ObtenerDataDelJasonOriginal({
     })
   }
 
-  function handleToggleItemVisibility(itemKey: string) {
-    setItemVisibilityState((currentState) => ({
-      ...currentState,
-      [itemKey]: !(currentState[itemKey] ?? false),
-    }))
-  }
-
   return (
     <section className="obtener-data-jason-original">
       <div className="obtener-data-jason-original__header">
@@ -651,7 +647,7 @@ function ObtenerDataDelJasonOriginal({
           const hasMismatch = mismatchLabelSet.has(item.label)
           const hasEditedMatch =
             !hasMismatch && editedMatchLabelSet.has(item.label)
-          const isItemVisible = itemVisibilityState[itemKey] ?? false
+          const isItemVisible = visibilityByLabel[item.label] ?? false
           const lineNumber = findJsonLineNumber({
             mode: item.lineLookupMode ?? 'property',
             searchKey: getLineSearchKey(item),
@@ -727,7 +723,7 @@ function ObtenerDataDelJasonOriginal({
                     ? ''
                     : 'obtener-data-jason-original__item-visibility-toggle--inactive'
                 }`}
-                onClick={() => handleToggleItemVisibility(itemKey)}
+                onClick={() => onVisibilityToggle?.(item.label)}
                 aria-label={`Alternar icono de visibilidad para ${item.label}`}
                 aria-pressed={isItemVisible}
               >
@@ -736,6 +732,26 @@ function ObtenerDataDelJasonOriginal({
                   className="obtener-data-jason-original__visibility-icon"
                 />
               </button>
+
+              <button
+                type="button"
+                className="obtener-data-jason-original__item-copy-toggle"
+                onClick={() => void handleCopyValue(currentValue)}
+                aria-label={`Copiar valor de ${item.label}`}
+              >
+                <CloneIcon className="obtener-data-jason-original__copy-icon" />
+              </button>
+
+              {isDirty ? (
+                <button
+                  type="button"
+                  className="obtener-data-jason-original__item-reset-toggle"
+                  onClick={() => handleResetValue(itemKey)}
+                  aria-label={`Restablecer valor de ${item.label}`}
+                >
+                  <CornerUpLeftIcon className="obtener-data-jason-original__copy-icon" />
+                </button>
+              ) : null}
 
               {lineNumber ? (
                 onLineNumberClick ? (
@@ -754,25 +770,6 @@ function ObtenerDataDelJasonOriginal({
                 )
               ) : null}
 
-              <div className="obtener-data-jason-original__actions">
-                {isDirty ? (
-                  <button
-                    type="button"
-                    className="obtener-data-jason-original__action-button"
-                    onClick={() => handleResetValue(itemKey)}
-                  >
-                    Reset
-                  </button>
-                ) : null}
-
-                <button
-                  type="button"
-                  className="obtener-data-jason-original__action-button"
-                  onClick={() => void handleCopyValue(currentValue)}
-                >
-                  Copy
-                </button>
-              </div>
             </div>
           )
         })}

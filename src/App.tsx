@@ -846,6 +846,9 @@ function App() {
   const [secondarySnapshotItems, setSecondarySnapshotItems] = useState<
     JsonItemSnapshot[]
   >([])
+  const [itemVisibilityByLabel, setItemVisibilityByLabel] = useState<
+    Record<string, boolean>
+  >({})
   const [primaryController, setPrimaryController] =
     useState<JsonItemController | null>(null)
   const panelRef = useRef<HTMLElement | null>(null)
@@ -897,7 +900,7 @@ function App() {
   const compactReferenceItems = mergeCompactItems(
     primarySnapshotItems,
     secondarySnapshotItems,
-  )
+  ).filter((item) => itemVisibilityByLabel[item.label] ?? false)
   const canShowCompactReference =
     compactReferenceItems.length > 0 &&
     !parseError &&
@@ -1292,6 +1295,13 @@ function App() {
                   onControllerReady={setPrimaryController}
                   onComparableStateChange={setPrimaryComparableState}
                   onItemsSnapshotChange={setPrimarySnapshotItems}
+                  visibilityByLabel={itemVisibilityByLabel}
+                  onVisibilityToggle={(label) =>
+                    setItemVisibilityByLabel((currentState) => ({
+                      ...currentState,
+                      [label]: !(currentState[label] ?? false),
+                    }))
+                  }
                   onLineNumberClick={(lineNumber) =>
                     handleLineNumberClick('primary', lineNumber)
                   }
@@ -1465,6 +1475,13 @@ function App() {
                   editedMatchLabels={editedMatchLabels}
                   onComparableStateChange={setSecondaryComparableState}
                   onItemsSnapshotChange={setSecondarySnapshotItems}
+                  visibilityByLabel={itemVisibilityByLabel}
+                  onVisibilityToggle={(label) =>
+                    setItemVisibilityByLabel((currentState) => ({
+                      ...currentState,
+                      [label]: !(currentState[label] ?? false),
+                    }))
+                  }
                   onLineNumberClick={(lineNumber) =>
                     handleLineNumberClick('secondary', lineNumber)
                   }
