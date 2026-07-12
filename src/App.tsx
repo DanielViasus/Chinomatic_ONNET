@@ -1608,6 +1608,12 @@ function App() {
           isVisible={canShowCompactReference}
           items={compactReferenceItems}
           onEditableValueChange={handleCompactReferenceValueChange}
+          onVisibilityToggle={(label) =>
+            setItemVisibilityByLabel((currentState) => ({
+              ...currentState,
+              [label]: !(currentState[label] ?? false),
+            }))
+          }
         />
 
         <div

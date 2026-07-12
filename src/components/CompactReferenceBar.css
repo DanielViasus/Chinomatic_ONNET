@@ -53,11 +53,13 @@
   --mismatch-shadow-glow: rgba(148, 163, 184, 0.28);
   --mismatch-surface-overlay: rgba(148, 163, 184, 0.08);
   display: grid;
-  grid-template-columns: 17px auto minmax(0, 1fr);
+  grid-template-columns: 17px max-content minmax(1ch, max-content) 18px;
   align-items: center;
   column-gap: 7px;
   min-width: 0;
-  flex: 0 1 188px;
+  width: fit-content;
+  max-width: 100%;
+  flex: 0 1 auto;
   min-height: 33px;
   padding: 0 10px 0 8px;
   border: 1px solid var(--line);
@@ -239,13 +241,15 @@
   display: flex;
   align-items: center;
   min-width: 0;
-  flex: 1 1 auto;
+  width: fit-content;
+  max-width: 34ch;
 }
 
 .compact-reference__value-text,
 .compact-reference__value-input {
   display: block;
-  width: 100%;
+  width: fit-content;
+  max-width: 34ch;
   min-width: 0;
   overflow-x: auto;
   overflow-y: hidden;
@@ -283,6 +287,42 @@
   outline: 2px solid var(--accent);
   outline-offset: 4px;
   border-radius: 6px;
+}
+
+.compact-reference__remove {
+  appearance: none;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: color-mix(in srgb, var(--compact-item-value-color) 72%, var(--ink-soft));
+  opacity: 0.68;
+  cursor: pointer;
+  transition:
+    color 160ms ease,
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.compact-reference__remove:hover {
+  color: var(--compact-item-value-color);
+  opacity: 1;
+  transform: scale(1.08);
+}
+
+.compact-reference__remove:focus-visible {
+  outline: 2px solid var(--compact-item-value-color);
+  outline-offset: 2px;
+  border-radius: 50%;
+}
+
+.compact-reference__remove-icon {
+  display: block;
+  width: 18px;
+  height: 18px;
 }
 
 @keyframes compact-reference-mismatch {
@@ -329,8 +369,8 @@
   }
 
   .compact-reference__item {
-    flex-basis: calc(50% - 5px);
-    min-width: min(100%, 168px);
+    flex-basis: auto;
+    min-width: 0;
   }
 }
 
@@ -345,7 +385,7 @@
   }
 
   .compact-reference__item {
-    flex-basis: 100%;
+    flex-basis: auto;
     padding-inline: 9px;
   }
 }
