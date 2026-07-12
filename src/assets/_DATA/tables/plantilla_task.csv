@@ -1,0 +1,107 @@
+CSTASK (Asunto),CSTASK (Descripcion)
+Error Activacion SOM - TDC,"► PRODUCTID: CAI_ONT42000120202607060921553962223079 ► ACT SOM NO EJECUTA
+Cordial saludo, solicito su colaboración con el servicio CAI_ONT42000120202607060921553962223079, no se ejecuta completamente la activación en SOM, se presenta el error:
+
+►◄"
+OnuID Existente - TDC,"► PRODUCTID: CAI_ONT42000120202607060921553962223079 ► ONUID EXISTENTE
+
+Cordial saludo, por favor su colaboración con el CAI_ONT42000120202607060921553962223079 se encuentra configurado un servicio en las vías asignadas
+► OLT: 10.37.53.78 - OH_SANALPSTC_I_7360_Piedecuesta_3
+► SLOT: 15
+► PORT: 10
+► ONUID: 35"
+OnuID Existente - TDC,
+Vlan Duplicada - TDC,"► PRODUCTID: CAI_ONT42000120202607060921553962223079 ► VLAN DUPLICADA
+Cordial saludo, Se presenta VLAN duplicada ►2032:1934◄ sobre el servicio configurado CAI_ONT42000120202607060921553962223079"
+Vlan Duplicada - TDC,► ONUID: Vlan Duplicada - TDC
+Inconsistencia Recursos - TDC,"► PRODUCTID: CAI_ONT42000120202607060921553962223079 ► INCONSISTENCIA VLAN
+Cordial saludo, solicito su amable colaboración con el servicio ► PRODUCTID: CAI_ONT42000120202607060921553962223079, las Vlan asignadas al cliente corporativo son ►2032:2032◄ y las que corresponden por ser corporativo son ► 2500:2032◄"
+Inconsistencia Password - TDC,"► PRODUCTID: CAI_ONT42000120202607060921553962223079 ► INCONSISTENCIA PASSWORD
+Cordial saludo, Se presenta error en password que aparece en recursos asignados en BluePlanet y Beesion,
+aparece el ► PASSWORD: 9U7V0CQVD8
+ y debería ser ► PASSWORD: 9U7V0CQVD8 "
+Cambio De Serial - TDC,"Cordial saludo, se realiza cambio de serial solicitado por el VNO para el ► PRODUCTID: CAI_ONT42000120202607060921553962223079, por favor actualizar en todos los sistemas
+El serial actualizado es…9U7V0CQVD8"
+Vlan No Creada En OLT - TDC,"Cordial saludo, la ► NETWORKVLAN: 2032 no está creada en la ► OLT: 10.37.53.78 - OH_SANALPSTC_I_7360_Piedecuesta_3 para el ► PRODUCTID: CAI_ONT42000120202607060921553962223079, por favor su apoyo creando la VLAN para el servicio."
+Inconsistencia Dependencias - TDC,"► PRODUCTID: CAI_ONT42000120202607060921553962223079 ► INCONSISTENCIA DEPENDENCIAS FALTANTES 
+
+Cordial saludo, solicito su apoyo con el CAI_ONT42000120202607060921553962223079 no se observan todas las dependencias en los sistemas
+• HSI (100) ► Si aparece en BluePlanet y Si aparece en Beesion
+• VOIP (101) ► Si aparece en BluePlanet y Si aparece en Beesion
+• IPTV (102) ► Si aparece en BluePlanet y Si aparece en Beesion
+
+Se configura dependencia faltante
+
+▼ Se observa en los sistemas ...
+- Error 608 en MODIFICACIONES SOM
+- Activación de la dependencia faltante finalizada con éxito en MODIFICACIONES SOM
+- No Aparece todas las dependencias en Beesion al consultar ''dependencies''
+- No Aparecen todas las dependencias en Beesion al consultar ''Extended Detail''"
+Desconciliación  - TDC,"Cordial saludo, solicito su amable colaboración con el servicio ► PRODUCTID: CAI_ONT42000120202607060921553962223079, no coinciden las vias asignadas en los sistemas, a continuacion se muestran las vias con las que se encuentra configurado en la OLT.
+
+► OLT: 10.37.53.78 - OH_SANALPSTC_I_7360_Piedecuesta_3
+► SLOT: 15
+► PORT: 10
+► ONUID: 35
+► PASSWORD: 9U7V0CQVD8
+► VLAN: 2032:1934
+
+servicio configurado en la ► OLT: 10.37.53.78 - OH_SANALPSTC_I_7360_Piedecuesta_3 ► 15/10/35 por favor validar"
+Desconciliación Correspondencia  - TDC,"Cordial saludo, solicito su amable colaboración con el servicio ► PRODUCTID: CAI_ONT42000120202607060921553962223079, no coinciden las vias asignadas con la tabla de correspondencia, a continuación, se muestran las vias con las que se encuentra configurado en la OLT y que deberían estar en los recursos asignados.
+
+► OLT: 10.37.53.78 - OH_SANALPSTC_I_7360_Piedecuesta_3
+► SLOT: 15 ◄ requiere corrección en BP
+► PORT: 10
+► ONUID: 35
+► PASSWORD: 9U7V0CQVD8
+► VLAN: 2032:1934
+
+servicio configurado en la ► OLT: 10.37.53.78 - OH_SANALPSTC_I_7360_Piedecuesta_3 ► 15/10/35 por favor validar, servicio activo con MAC"
+Actualizacion Perfil - TDC,"► PRODUCTID: CAI_ONT42000120202607060921553962223079 ► ACTUALIZACION PERFIL
+Cordial saludo, se solicita su apoyo para actualizar perfil ► PRODUCTID: CAI_ONT42000120202607060921553962223079
+en los sistemas se encuentraSpeedy_500M se requiere actualizacion a perfil Speedy_500M"
+Actualizacion Recursos Cambio CT - TDC,"► SERVICIO: CAI_ONT42000120202607060921553962223079 ► ACTUALIZACION RECURSOS CAMBIO DE CT 
+Cordial saludo, Se realiza cambio de CT solicitado por el VNO por ende los recursos requieren ser actualizados en todos los sistemas ... por favor regularizar los recursos de la siguiente manera.
+
+► OLT: 10.37.53.78 - OH_SANALPSTC_I_7360_Piedecuesta_3 },
+► SLOT: 15
+► PUERTO: 10
+► ONUID: 35 (Sugerida)
+► CT: PIEDE-PC2-99-07
+► PASSWORD: 9U7V0CQVD8
+► VLAN: 2032:1934
+
+Recursos actualizados no configurados en la OLT"
+TCO000000 - FALLA CORRESPONDENCIA - ► OLT: 10.37.53.78 - OH_SANALPSTC_I_7360_Piedecuesta_3 ► 15/10/35 ► PIEDE-PC2-99-07,"Cordial saludo, se evidencia intento de sincronismo en las vías 15/10▼ de la HGU 9U7V0CQVD8, debería estar en el 15/10 según las vías asignadas por los sistemas, las pruebas se realizarán sobre la CTO PIEDE-PC2-99-07
+► PRODUCTID: CAI_ONT42000120202607060921553962223079
+► ACCESID: c84f6b2f-7bde-11f1-823a-37f73621a399
+
+llamar a los números de HELPDESK_ONNET...
+
+HELDESK 	3155668907
+Juan Viasus	3178630536
+Yiseth Leon	3175047560
+Neyder Bolaño	3158221052
+Harold Molina	3242647189
+Yeison Castillo	3189873795
+Faber Morales	3189589883
+
+Por favor llevar HGU de prueba, por favor validar si se requieren permisos para validar la CT."
+Actualizacion Serial - TDC,"Cordial saludo, por favor su ayuda con el servicio CAI_ONT42000120202607060921553962223079, se solicita actualizacion de Password por solicitud del VNO en todas las plataformas
+Serial Actualizado ► 9U7V0CQVD8
+
+Ya se encuentra configurado en ...
+► OLT: 10.37.53.78 - OH_SANALPSTC_I_7360_Piedecuesta_3
+► SLOT: 15
+► PORT: 10
+► ONUID: 35
+"
+Error ''701'' en Beesion - TDC,"Cordial saludo, solicito su amable colaboración con el servicio CAI_ONT42000120202607060921553962223079 (servicio Activo Beesion), se presenta Error 701 al realizar consulta ''Extended Detail'' en Beesion."
+Error ''702'' en Beesion - TDC,"Cordial saludo, solicito su amable colaboración con el servicio CAI_ONT42000120202607060921553962223079 (servicio Activo Beesion), se presenta Error 702 al realizar consulta ''Extended Detail'' en Beesion."
+Estado Terminated - TDC,"Cordial saludo, solicito su amable colaboración con el servicio CAI_ONT42000120202607060921553962223079 estado ''Terminated'' en Beesion (sin ''Delete'' en ''Detail''), no aparece en BluePlanet y no se observa solicitud de Baja en SOM."
+Solicitud Validacion Disponibilidad Puertos OLT - TDC,"Cordial saludo, en la ► OLT: 10.37.53.78 - OH_SANALPSTC_I_7360_Piedecuesta_3 ► SLOT: 15 ► PORT: 10
+
+Por favor revisar la ocupación y liberar posiciones Libres...
+
+De acuerdo a OLT :27,41
+De acuerdo a 3GIS : 0"

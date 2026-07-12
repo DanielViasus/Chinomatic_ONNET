@@ -1,4 +1,5 @@
 import {
+  type ClipboardEvent,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -670,6 +671,20 @@ function isEditorInDefaultState(rawJson: string): boolean {
   return normalizedJson.length === 0
 }
 
+function formatStructuredJsonForEditor(rawJson: string): string | null {
+  const parseResult = parsePayload(rawJson)
+
+  if (parseResult.error || parseResult.data === null) {
+    return null
+  }
+
+  if (typeof parseResult.data !== 'object') {
+    return null
+  }
+
+  return JSON.stringify(parseResult.data, null, 2)
+}
+
 function readStoredJson(storageKey: string, fallbackRawJson: string): string {
   if (typeof window === 'undefined') {
     return fallbackRawJson
@@ -962,6 +977,56 @@ function App() {
     setParsedJsonSecondary(result.data)
   }
 
+  function handlePrimaryEditorPaste(event: ClipboardEvent<HTMLTextAreaElement>) {
+    const pastedText = event.clipboardData.getData('text')
+    const formattedJson = formatStructuredJsonForEditor(pastedText)
+
+    if (!formattedJson) {
+      return
+    }
+
+    event.preventDefault()
+    handleRawJsonChange(formattedJson)
+    setPrimaryEditorHighlight(null)
+    setPrimaryEditorScrollTop(0)
+
+    window.requestAnimationFrame(() => {
+      if (primaryEditorRef.current) {
+        primaryEditorRef.current.scrollTop = 0
+        primaryEditorRef.current.setSelectionRange(0, 0)
+      }
+
+      if (lineNumbersRef.current) {
+        lineNumbersRef.current.scrollTop = 0
+      }
+    })
+  }
+
+  function handleSecondaryEditorPaste(event: ClipboardEvent<HTMLTextAreaElement>) {
+    const pastedText = event.clipboardData.getData('text')
+    const formattedJson = formatStructuredJsonForEditor(pastedText)
+
+    if (!formattedJson) {
+      return
+    }
+
+    event.preventDefault()
+    handleSecondaryRawJsonChange(formattedJson)
+    setSecondaryEditorHighlight(null)
+    setSecondaryEditorScrollTop(0)
+
+    window.requestAnimationFrame(() => {
+      if (secondaryEditorRef.current) {
+        secondaryEditorRef.current.scrollTop = 0
+        secondaryEditorRef.current.setSelectionRange(0, 0)
+      }
+
+      if (secondaryLineNumbersRef.current) {
+        secondaryLineNumbersRef.current.scrollTop = 0
+      }
+    })
+  }
+
   function handleLineNumberClick(
     editorKind: 'primary' | 'secondary',
     lineNumber: number,
@@ -1129,9 +1194,15 @@ function App() {
             <section className="json-workspace-primary">
               <section className="json-input-panel">
                 <div className="json-input-panel__header">
-                  <div>
-                    <p className="panel__eyebrow">Principal</p>
-                    <h3>Objeto JSON Blue Planet</h3>
+                  <div className="json-input-panel__identity">
+                    <span className="json-input-panel__emoji" aria-hidden="true">
+                      🌍
+                    </span>
+
+                    <div className="json-input-panel__copy">
+                      <p className="panel__eyebrow">Principal</p>
+                      <h3>Objeto JSON blueplanet</h3>
+                    </div>
                   </div>
 
                   <button
@@ -1192,8 +1263,9 @@ function App() {
                     value={rawJson}
                     spellCheck={false}
                     wrap="off"
-                    aria-label="Objeto JSON Blue Planet"
+                    aria-label="Objeto JSON blueplanet"
                     onChange={(event) => handleRawJsonChange(event.target.value)}
+                    onPaste={handlePrimaryEditorPaste}
                     onScroll={handleEditorScroll}
                   />
                 </div>
@@ -1289,9 +1361,15 @@ function App() {
             <section className="json-workspace-secondary">
               <section className="json-input-panel">
                 <div className="json-input-panel__header">
-                  <div>
-                    <p className="panel__eyebrow">Complementario</p>
-                    <h3>Objeto JSON Adicional</h3>
+                  <div className="json-input-panel__identity">
+                    <span className="json-input-panel__emoji" aria-hidden="true">
+                      🐝
+                    </span>
+
+                    <div className="json-input-panel__copy">
+                      <p className="panel__eyebrow">Complementario</p>
+                      <h3>Objeto JSON Beesion</h3>
+                    </div>
                   </div>
 
                   <button
@@ -1359,6 +1437,7 @@ function App() {
                     onChange={(event) =>
                       handleSecondaryRawJsonChange(event.target.value)
                     }
+                    onPaste={handleSecondaryEditorPaste}
                     onScroll={handleSecondaryEditorScroll}
                   />
                 </div>

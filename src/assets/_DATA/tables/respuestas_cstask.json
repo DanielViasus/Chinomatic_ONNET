@@ -1,0 +1,46 @@
+[
+  {
+    "NOTA": "Cordial saludo, solicito su amable colaboración con el servicio CAI_ONT32000010202602121053505118895027 (servicio Activo Beesion), se presenta Error 701 al realizar consulta \"Extended Detail\" en Beesion.",
+    "VALIDACIÓN": "CSTASK 701 BEESION"
+  },
+  {
+    "NOTA": "Cordial saludo, se borra servicio IPTV en la posición 15/10/35 en la OLT 10.37.53.78",
+    "VALIDACIÓN": "CSTASK IPTV BORRADA"
+  },
+  {
+    "NOTA": "Cordial saludo, se borra servicio en la posición 15/10/35 en la OLT 10.37.53.78",
+    "VALIDACIÓN": "CSTASK ONUID BORRADA"
+  },
+  {
+    "NOTA": "Cordial saludo, en la OLT 10.37.53.78 se libera el password 9U7V0CQVD8, en las vias 15/10/35",
+    "VALIDACIÓN": "CSTASK PASSWORD BORRADO"
+  },
+  {
+    "NOTA": "Cordial saludo, en la OLT 10.37.53.78 no se encuentra configurado el Password 9U7V0CQVD8, se realiza prueba creando servicio con el  password mencionado sin novedades (se borra servicio posteriormente)",
+    "VALIDACIÓN": "CSTASK PASSWORD NO EXISTE"
+  },
+  {
+    "NOTA": "Cordial saludo, se borra servicio VOIP en la posición 15/10/35 en la OLT 10.37.53.78",
+    "VALIDACIÓN": "CSTASK VOIP BORRADA"
+  },
+  {
+    "NOTA": "Cordial saludo, se revisa servicio CAI_ONT42000120202607060921553962223079 el cual se encuentra correctamente configurado, no se observa Van duplicada o que intenta sincronizar en otras vias ...no se evidencia equipo conectado",
+    "VALIDACIÓN": "TCO VALIDACIÓN CONFIGURACIÓN"
+  },
+  {
+    "NOTA": "Cordial saludo, se realiza revisa servicio CAI_ONT42000120202607060921553962223079 el cual se encuentra correctamente configurado, se configura nuevamente IPTV ''Asociación IGMP''",
+    "VALIDACIÓN": "TCO VALIDACIÓN CONFIGURACIÓN"
+  },
+  {
+    "NOTA": "Cordial saludo, se realiza reconfiguración de servicio BA en el clienteCAI_ONT42000120202607060921553962223079, se evidencia equipo conectado por favor validar",
+    "VALIDACIÓN": "TCO VALIDACIÓN CONFIGURACIÓN"
+  },
+  {
+    "NOTA": "Cordial saludo, se realiza reconfiguración del servicio CAI_ONT42000120202607060921553962223079, no se evidencia equipo conectado por favor validar",
+    "VALIDACIÓN": "TCO VALIDACIÓN CONFIGURACIÓN"
+  },
+  {
+    "NOTA": "Cordial saludo, se revisa servicio CAI_ONT42000120202607060921553962223079 correctamente configurado y con MAC",
+    "VALIDACIÓN": "TCO VALIDACIÓN CONFIGURACIÓN"
+  }
+]

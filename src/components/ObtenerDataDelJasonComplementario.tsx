@@ -11,6 +11,7 @@ import {
   type ToneMap,
 } from './jsonToneShared'
 import { findJsonLineNumber, type JsonLineLookupMode } from './jsonLineLookup'
+import VisibilityToggleIcon from './VisibilityToggleIcon'
 import type { JsonItemSnapshot } from './jsonCompactModels'
 
 type DataItemValueFormatter = (value: unknown, source: unknown) => string
@@ -702,6 +703,9 @@ function ObtenerDataDelJasonComplementario({
     sourceSignature,
     indices: {},
   }))
+  const [itemVisibilityState, setItemVisibilityState] = useState<
+    Record<string, boolean>
+  >({})
   const editableValues =
     editableState.sourceSignature === sourceSignature
       ? editableState.values
@@ -976,11 +980,24 @@ function ObtenerDataDelJasonComplementario({
     })
   }
 
+  function handleToggleItemVisibility(itemKey: string) {
+    setItemVisibilityState((currentState) => ({
+      ...currentState,
+      [itemKey]: !(currentState[itemKey] ?? false),
+    }))
+  }
+
   return (
     <section className="obtener-data-jason-original">
       <div className="obtener-data-jason-original__header">
         <h3 className="obtener-data-jason-original__title">
-          ObtenerDataDelJason Complementario
+          <span
+            className="obtener-data-jason-original__title-emoji"
+            aria-hidden="true"
+          >
+            🐝
+          </span>
+          <span>Despliegue Data Beesion</span>
         </h3>
 
         <button
@@ -1011,6 +1028,7 @@ function ObtenerDataDelJasonComplementario({
           const hasMismatch = mismatchLabelSet.has(item.label)
           const hasEditedMatch =
             !hasMismatch && editedMatchLabelSet.has(item.label)
+          const isItemVisible = itemVisibilityState[itemKey] ?? false
           const lineLookupConfigs = resolveLineLookupConfigs(
             source,
             sourceText,
@@ -1090,6 +1108,23 @@ function ObtenerDataDelJasonComplementario({
                   />
                 ) : null}
               </div>
+
+              <button
+                type="button"
+                className={`obtener-data-jason-original__item-visibility-toggle ${
+                  isItemVisible
+                    ? ''
+                    : 'obtener-data-jason-original__item-visibility-toggle--inactive'
+                }`}
+                onClick={() => handleToggleItemVisibility(itemKey)}
+                aria-label={`Alternar icono de visibilidad para ${item.label}`}
+                aria-pressed={isItemVisible}
+              >
+                <VisibilityToggleIcon
+                  isVisible={isItemVisible}
+                  className="obtener-data-jason-original__visibility-icon"
+                />
+              </button>
 
               {lineNumbers.length > 0 ? (
                 onLineNumberClick ? (

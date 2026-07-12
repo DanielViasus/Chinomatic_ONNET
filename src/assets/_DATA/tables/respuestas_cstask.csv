@@ -1,0 +1,12 @@
+NOTA,VALIDACIÓN
+"Cordial saludo, solicito su amable colaboración con el servicio CAI_ONT32000010202602121053505118895027 (servicio Activo Beesion), se presenta Error 701 al realizar consulta ""Extended Detail"" en Beesion.",CSTASK 701 BEESION
+"Cordial saludo, se borra servicio IPTV en la posición 15/10/35 en la OLT 10.37.53.78",CSTASK IPTV BORRADA
+"Cordial saludo, se borra servicio en la posición 15/10/35 en la OLT 10.37.53.78",CSTASK ONUID BORRADA
+"Cordial saludo, en la OLT 10.37.53.78 se libera el password 9U7V0CQVD8, en las vias 15/10/35",CSTASK PASSWORD BORRADO
+"Cordial saludo, en la OLT 10.37.53.78 no se encuentra configurado el Password 9U7V0CQVD8, se realiza prueba creando servicio con el  password mencionado sin novedades (se borra servicio posteriormente)",CSTASK PASSWORD NO EXISTE
+"Cordial saludo, se borra servicio VOIP en la posición 15/10/35 en la OLT 10.37.53.78",CSTASK VOIP BORRADA
+"Cordial saludo, se revisa servicio CAI_ONT42000120202607060921553962223079 el cual se encuentra correctamente configurado, no se observa Van duplicada o que intenta sincronizar en otras vias ...no se evidencia equipo conectado",TCO VALIDACIÓN CONFIGURACIÓN
+"Cordial saludo, se realiza revisa servicio CAI_ONT42000120202607060921553962223079 el cual se encuentra correctamente configurado, se configura nuevamente IPTV ''Asociación IGMP''",TCO VALIDACIÓN CONFIGURACIÓN
+"Cordial saludo, se realiza reconfiguración de servicio BA en el clienteCAI_ONT42000120202607060921553962223079, se evidencia equipo conectado por favor validar",TCO VALIDACIÓN CONFIGURACIÓN
+"Cordial saludo, se realiza reconfiguración del servicio CAI_ONT42000120202607060921553962223079, no se evidencia equipo conectado por favor validar",TCO VALIDACIÓN CONFIGURACIÓN
+"Cordial saludo, se revisa servicio CAI_ONT42000120202607060921553962223079 correctamente configurado y con MAC",TCO VALIDACIÓN CONFIGURACIÓN

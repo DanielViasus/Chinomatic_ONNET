@@ -1,0 +1,167 @@
+{
+  "sourceWorkbook": "src/assets/_DATA/GUNDAM_1.xlsx",
+  "exportedTables": 6,
+  "sheets": [
+    {
+      "sheet": "COLTEL",
+      "rows": 175,
+      "dataRows": 174,
+      "columns": 13,
+      "headerCount": 13,
+      "status": "skipped",
+      "reason": "Mezcla JSON bruto, validaciones y layout visual; no es una tabla normalizada.",
+      "headerPreview": [
+        "{\"id\":\"c84f6b2f-7bde-11f1-823a-37f73621a399\",\"label\":\"OnNetService_CAI_ONT42000120202607060921553962223079\",\"resourceTypeId\":\"onnet.resourceTypes.OnNetInternetServiceCfs\",\"productId\":\"d7e48de0-fb66-11ee-970e-85b17a634b58\",\"domainId\":\"built-in\",\"tenantId\":\"7bb0708c-f9c4-11ee-b10e-df6135db04cf\",\"shared\":false,\"subDomainId\":\"7fd5144c-552f-39a3-9464-08d3b9cfb251\",\"properties\":{\"productSpecification\":\"RfsLogicalAccess\",\"gemPortData\":\"2\",\"olt\":\"10.37.55.210\",\"accessId\":\"c84f6b2f-7bde-11f1-823a-37f73621a399\",\"innerVlanData\":\"1934\",\"ontVlanData\":\"100\",\"upOpticalProfileData\":\"Speedy_500M\",\"serviceIdData\":\"3892143670466\",\"customerType\":\"Residential\",\"networkVlanData\":\"2032\",\"downSpeedData\":\"512000\",\"queuePriorityData\":\"0\",\"activationTypeData\":\"vlan-QnQ\",\"shelf\":\"1\",\"port\":\"10\",\"registrationTypeValue\":\"9U7V0CQVD8\",\"downOpticalProfileData\":\"Speedy_500M\",\"tmfAttributes\":{\"atType\":\"onnet.resourceTypes.OnNetInternetServiceCfs\",\"isServiceEnabled\":false,\"state\":\"active\",\"atBaseType\":\"tmf.resourceTypes.TmfServiceInterface\",\"tmfId\":\"18c68381-ce1e-47ea-8b93-097765c09e30\",\"hasStarted\":false,\"startMode\":\"0\",\"failureOrderItemState\":\"undefined\",\"failureOderItemState\":\"undefined\",\"isStateful\":false,\"category\":\"customer facing service\",\"operationState\":\"success\",\"startDate\":\"2026-07-09T21:40:19Z\"},\"logicalPort\":\"35\",\"ontType\":\"GPON\",\"productId\":\"CAI_ONT42000120202607060921553962223079\",\"upSpeedData\":\"512000\",\"slot\":\"15\",\"ontSrvprofile\":\"ONT_4_ETH_1_FXS\",\"vno\":\"TDC\",\"registrationType\":\"PasswordID\"},\"discovered\":false,\"differences\":[],\"desiredOrchState\":\"active\",\"orchState\":\"active\",\"reason\":\"\",\"tags\":{},\"providerData\":{},\"updatedAt\":\"2026-07-09T21:42:40.519Z\",\"createdAt\":\"2026-07-09T21:40:19.962Z\",\"revision\":232048972,\"autoClean\":false,\"updateState\":\"successful\",\"updateReason\":\"\",\"updateCount\":11}",
+        "column_2",
+        "column_3",
+        "column_4",
+        "{\n    \"product\": [\n        {\n            \"id\": \"9f4339bf-c9a1-4cb1-bba9-f9471c024743\",\n            \"name\": \"CFS BA\",\n            \"startDate\": \"2026-07-09T21:40:26.453Z\",\n            \"productCharacteristic\": [\n                {\n                    \"name\": \"Down_optical_profile\",\n                    \"valueType\": \"string\",\n                    \"value\": \"Speedy_500M\"\n                },\n                {\n                    \"name\": \"DownloadSpeed\",\n                    \"valueType\": \"string\",\n                    \"value\": \"512000\"\n                },\n                {\n                    \"name\": \"Up_optical_profile\",\n                    \"valueType\": \"string\",\n                    \"value\": \"Speedy_500M\"\n                },\n                {\n                    \"name\": \"UploadSpeed\",\n                    \"valueType\": \"string\",\n                    \"value\": \"512000\"\n                },\n                {\n                    \"name\": \"Network_VLAN_BA\",\n                    \"valueType\": \"string\",\n                    \"value\": \"2032\"\n                },\n                {\n                    \"name\": \"ONT_VLAN_BA\",\n                    \"valueType\": \"string\",\n                    \"value\": \"100\"\n                }\n            ]\n        }\n    ],\n    \"id\": \"0d75153c-ed54-497c-bbd9-2c4c2dbb13ce\",\n    \"externalId\": \"CAI_ONT42000120202607060921553962223079\",\n    \"name\": \"FTTH Access\",\n    \"orderDate\": \"2026-07-06T14:22:12.149933Z\",\n    \"startDate\": \"2026-07-09T21:40:19Z\",\n    \"place\": [\n        {\n            \"id\": \"ONNET.68547000.f4JucDEX1nyGfdoNF+sviccTVGUnndXcQGCt1b81v9qQmDSazaaicHafz59eOfH4LeUUfyb5pQH*am4L0zcHPg==\",\n            \"role\": \"installationAddress\",\n            \"@type\": \"GeographicAddress\"\n        }\n    ],\n    \"productCharacteristic\": [\n        {\n            \"name\": \"serialId\",\n            \"valueType\": \"string\",\n            \"value\": \"\"\n        },\n        {\n            \"name\": \"typeOnt\",\n            \"valueType\": \"string\",\n            \"value\": \"ONT_4_ETH_1_FXS\"\n        },\n        {\n            \"name\": \"MunicipalityCode\",\n            \"valueType\": \"string\",\n            \"value\": \"68547\"\n        },\n        {\n            \"name\": \"ActivationType\",\n            \"valueType\": \"string\",\n            \"value\": \"PasswordId\"\n        },\n        {\n            \"name\": \"ProvisioningType\",\n            \"valueType\": \"string\",\n            \"value\": \"Automatic\"\n        },\n        {\n            \"name\": \"ProductId\",\n            \"valueType\": \"string\",\n            \"value\": \"CAI_ONT42000120202607060921553962223079\"\n        },\n        {\n            \"name\": \"DownloadSpeed\",\n            \"valueType\": \"string\",\n            \"value\": \"512000\"\n        },\n        {\n            \"name\": \"UploadSpeed\",\n            \"valueType\": \"string\",\n            \"value\": \"512000\"\n        },\n        {\n            \"name\": \"customerType\",\n            \"valueType\": \"string\",\n            \"value\": \"Residential\"\n        },\n        {\n            \"name\": \"PonTechnology\",\n            \"valueType\": \"string\",\n            \"value\": \"GPON\"\n        },\n        {\n            \"name\": \"CTOCoordinateX\",\n            \"valueType\": \"string\",\n            \"value\": \"-73.05975622\"\n        },\n        {\n            \"name\": \"CTOCoordinateY\",\n            \"valueType\": \"string\",\n            \"value\": \"6.97043164\"\n        },\n        {\n            \"name\": \"CTOType\",\n            \"valueType\": \"single_line_text\",\n            \"value\": \"11\"\n        },\n        {\n            \"name\": \"PortName\",\n            \"valueType\": \"single_line_text\",\n            \"value\": \"OUTPUT 0001\"\n        },\n        {\n            \"name\": \"PortID\",\n            \"valueType\": \"single_line_text\",\n            \"value\": \"0001\"\n        },\n        {\n            \"name\": \"PasswordId\",\n            \"valueType\": \"string\",\n            \"value\": \"9U7V0CQVD8\"\n        },\n        {\n            \"name\": \"UIPCoordinateX\",\n            \"valueType\": \"string\",\n            \"value\": \"-73.05995274\"\n        },\n        {\n            \"name\": \"UIPCoordinateY\",\n            \"valueType\": \"string\",\n            \"value\": \"6.97075259\"\n        },\n        {\n            \"name\": \"UIPPlaceId\",\n            \"valueType\": \"string\",\n            \"value\": \"ONNET.68547000.f4JucDEX1nyGfdoNF+sviccTVGUnndXcQGCt1b81v9qQmDSazaaicHafz59eOfH4LeUUfyb5pQH*am4L0zcHPg==\"\n        },\n        {\n            \"name\": \"OLTName\",\n            \"valueType\": \"string\",\n            \"value\": \"OH_SANALPSTC_I_7360\"\n        },\n        {\n            \"name\": \"CTOName\",\n            \"valueType\": \"string\",\n            \"value\": \"PIEDE-PC2-99-07\"\n        },\n        {\n            \"name\": \"SplitterID\",\n            \"valueType\": \"string\",\n            \"value\": \"SS2-99-07\"\n        },\n        {\n            \"name\": \"SplitterPortName\",\n            \"valueType\": \"string\",\n            \"value\": \"OUTPUT 0001\"\n        },\n        {\n            \"name\": \"CTOAccessPointType\",\n            \"valueType\": \"string\",\n            \"value\": \"11\"\n        },\n        {\n            \"name\": \"DropId\",\n            \"valueType\": \"string\",\n            \"value\": \"\"\n        },\n        {\n            \"name\": \"department\",\n            \"valueType\": \"string\",\n            \"value\": \"SANTANDER\"\n        },\n        {\n            \"name\": \"onu_id\",\n            \"valueType\": \"string\",\n            \"value\": \"35\"\n        },\n        {\n            \"name\": \"shelf\",\n            \"valueType\": \"string\",\n            \"value\": \"Shelf Pos 1\"\n        },\n        {\n            \"name\": \"device_name\",\n            \"valueType\": \"string\",\n            \"value\": \"OH_SANALPSTC_I_7360_Piedecuesta_3\"\n        },\n        {\n            \"name\": \"card\",\n            \"valueType\": \"string\",\n            \"value\": \"15\"\n        },\n        {\n            \"name\": \"pluggable_name\",\n            \"valueType\": \"string\",\n            \"value\": \"C+ (SFP 10)\"\n        },\n        {\n            \"name\": \"operational_zone\",\n            \"valueType\": \"string\",\n            \"value\": \"ORIENTE\"\n        },\n        {\n            \"name\": \"region_name\",\n            \"valueType\": \"string\",\n            \"value\": \"ORIENTE\"\n        },\n        {\n            \"name\": \"comune\",\n            \"valueType\": \"string\",\n            \"value\": \"PIEDECUESTA\"\n        },\n        {\n            \"name\": \"polygon\",\n            \"valueType\": \"string\",\n            \"value\": \"SANTANDER (AREA METROPOLITANA 1)\"\n        },\n        {\n            \"name\": \"cto_port_name\",\n            \"valueType\": \"string\",\n            \"value\": \"OUTPUT 0001\"\n        }\n    ],\n    \"productOffering\": {\n        \"id\": \"Ftth\",\n        \"name\": \"FTTH\",\n        \"@baseType\": \"OfferAgreement\",\n        \"@type\": \"Offer\",\n        \"@referredType\": \"98\"\n    },\n    \"productOrderItem\": [\n        {\n            \"orderItemAction\": \"ADD\",\n            \"orderItemId\": \"1\",\n            \"productOrderId\": \"390835aa-a6fa-49df-9b24-2f8d19ccc324\",\n            \"role\": \"creator\"\n        },\n        {\n            \"orderItemAction\": \"MODIFY\",\n            \"orderItemId\": \"1\",\n            \"productOrderId\": \"4378c5c7-a7a9-438c-aae4-cfad9551cdd7\",\n            \"role\": \"modifier\"\n        }\n    ],\n    \"productSpecification\": {\n        \"id\": \"FtthAccess\",\n        \"href\": \"https://product-catalog-management.bss.svc.cluster.local/catalog/product/FtthAccess/?environment=PRODUCTION\",\n        \"name\": \"FTTH Access\",\n        \"@baseType\": \"Specification\",\n        \"@type\": \"Product\"\n    },\n    \"relatedParty\": [\n        {\n            \"id\": \"TDC\",\n            \"name\": \"COLOMBIA TELECOMUNICACIONES SA ESP BIC\",\n            \"role\": \"isp\",\n            \"@referredType\": \"CUSTOMER\"\n        }\n    ],\n    \"status\": \"active\"\n}",
+        "column_6",
+        "TABLA DE CORRESPONDENCIA",
+        "column_8",
+        "column_9",
+        "column_10",
+        "column_11",
+        "column_12"
+      ]
+    },
+    {
+      "sheet": "PLANTILLA",
+      "rows": 77,
+      "dataRows": 76,
+      "columns": 7,
+      "headerCount": 7,
+      "status": "skipped",
+      "reason": "Contiene plantilla narrativa con una columna de JSON incrustado en el encabezado.",
+      "headerPreview": [
+        "Nota De Resolucion",
+        "Causal de Cierre",
+        "Subcategoria",
+        "Tipo",
+        "{\n    \"product\": [\n        {\n            \"id\": \"ce5a884b-fa4a-4e4b-a06b-d3804924af3a\",\n            \"name\": \"CFS BA\",\n            \"startDate\": \"2026-06-11T20:55:51.072Z\",\n            \"productCharacteristic\": [\n                {\n                    \"name\": \"Down_optical_profile\",\n                    \"valueType\": \"string\",\n                    \"value\": \"Speedy_900M\"\n                },\n                {\n                    \"name\": \"DownloadSpeed\",\n                    \"valueType\": \"string\",\n                    \"value\": \"921600\"\n                },\n                {\n                    \"name\": \"Up_optical_profile\",\n                    \"valueType\": \"string\",\n                    \"value\": \"Speedy_900M\"\n                },\n                {\n                    \"name\": \"UploadSpeed\",\n                    \"valueType\": \"string\",\n                    \"value\": \"921600\"\n                },\n                {\n                    \"name\": \"Network_VLAN_BA\",\n                    \"valueType\": \"string\",\n                    \"value\": \"2175\"\n                },\n                {\n                    \"name\": \"ONT_VLAN_BA\",\n                    \"valueType\": \"string\",\n                    \"value\": \"100\"\n                }\n            ]\n        }\n    ],\n    \"id\": \"13a0e75d-6a7c-43af-bc4d-6f2c83695cb5\",\n    \"externalId\": \"CAI_ONT32000010202602021433055311278022\",\n    \"name\": \"FTTH Access\",\n    \"orderDate\": \"2026-02-02T12:02:00Z\",\n    \"startDate\": \"2026-02-02T12:02:00Z\",\n    \"place\": [\n        {\n            \"id\": \"ONNET.76001000.AxxjegDLs3wxJlPfSrLfNncTE5*oGwCDZa27MOp7Cigob9CAlRFL*pvPZMERwr8eFz9FSuVG1wZaVmCi9DzZBA==\",\n            \"role\": \"installationAddress\",\n            \"@type\": \"GeographicAddress\"\n        }\n    ],\n    \"productCharacteristic\": [\n        {\n            \"name\": \"ProductId\",\n            \"valueType\": \"string\",\n            \"value\": \"CAI_ONT32000010202602021433055311278022\"\n        },\n        {\n            \"name\": \"serialId\",\n            \"valueType\": \"string\",\n            \"value\": \"\"\n        },\n        {\n            \"name\": \"typeOnt\",\n            \"valueType\": \"string\",\n            \"value\": \"ONT_4_ETH_1_FXS\"\n        },\n        {\n            \"name\": \"MunicipalityCode\",\n            \"valueType\": \"string\",\n            \"value\": \"\"\n        },\n        {\n            \"name\": \"ActivationType\",\n            \"valueType\": \"string\",\n            \"value\": \"PasswordId\"\n        },\n        {\n            \"name\": \"ProvisioningType\",\n            \"valueType\": \"string\",\n            \"value\": \"Automatic\"\n        },\n        {\n            \"name\": \"customerType\",\n            \"valueType\": \"string\",\n            \"value\": \"Residential\"\n        },\n        {\n            \"name\": \"DownloadSpeed\",\n            \"valueType\": \"string\",\n            \"value\": \"921600\"\n        },\n        {\n            \"name\": \"UploadSpeed\",\n            \"valueType\": \"string\",\n            \"value\": \"921600\"\n        },\n        {\n            \"name\": \"PonTechnology\",\n            \"valueType\": \"string\",\n            \"value\": \"GPON\"\n        },\n        {\n            \"name\": \"CTOCoordinateX\",\n            \"valueType\": \"string\",\n            \"value\": \"\"\n        },\n        {\n            \"name\": \"CTOCoordinateY\",\n            \"valueType\": \"string\",\n            \"value\": \"\"\n        },\n        {\n            \"name\": \"CTOType\",\n            \"valueType\": \"single_line_text\",\n            \"value\": \"\"\n        },\n        {\n            \"name\": \"PortName\",\n            \"valueType\": \"single_line_text\",\n            \"value\": \"OUTPUT 0002\"\n        },\n        {\n            \"name\": \"PortID\",\n            \"valueType\": \"single_line_text\",\n            \"value\": \"0002\"\n        },\n        {\n            \"name\": \"PasswordId\",\n            \"valueType\": \"string\",\n            \"value\": \"4Q2X7YGA6P\"\n        },\n        {\n            \"name\": \"UIPCoordinateX\",\n            \"valueType\": \"string\",\n            \"value\": \"-76.51669153\"\n        },\n        {\n            \"name\": \"UIPCoordinateY\",\n            \"valueType\": \"string\",\n            \"value\": \"3.36155589\"\n        },\n        {\n            \"name\": \"UIPPlaceId\",\n            \"valueType\": \"string\",\n            \"value\": \"ONNET.76001000.AxxjegDLs3wxJlPfSrLfNncTE5*oGwCDZa27MOp7Cigob9CAlRFL*pvPZMERwr8eFz9FSuVG1wZaVmCi9DzZBA==\"\n        },\n        {\n            \"name\": \"OLTName\",\n            \"valueType\": \"string\",\n            \"value\": \"OH_VALALVILE_I_7360\"\n        },\n        {\n            \"name\": \"CTOName\",\n            \"valueType\": \"string\",\n            \"value\": \"PC2-113-01\"\n        },\n        {\n            \"name\": \"SplitterID\",\n            \"valueType\": \"string\",\n            \"value\": \"SS2-113-01\"\n        },\n        {\n            \"name\": \"SplitterPortName\",\n            \"valueType\": \"string\",\n            \"value\": \"OUTPUT 0002\"\n        },\n        {\n            \"name\": \"CTOAccessPointType\",\n            \"valueType\": \"string\",\n            \"value\": \"\"\n        },\n        {\n            \"name\": \"DropId\",\n            \"valueType\": \"string\",\n            \"value\": \"\"\n        },\n        {\n            \"name\": \"department\",\n            \"valueType\": \"string\",\n            \"value\": \"VALLE DEL CAUCA\"\n        },\n        {\n            \"name\": \"onu_id\",\n            \"valueType\": \"string\",\n            \"value\": \"28\"\n        },\n        {\n            \"name\": \"shelf\",\n            \"valueType\": \"string\",\n            \"value\": \"Shelf Pos 1\"\n        },\n        {\n            \"name\": \"device_name\",\n            \"valueType\": \"string\",\n            \"value\": \"OH_VALALVILE_I_7360_Cali_ValledeLili_5\"\n        },\n        {\n            \"name\": \"card\",\n            \"valueType\": \"string\",\n            \"value\": \"14\"\n        },\n        {\n            \"name\": \"pluggable_name\",\n            \"valueType\": \"string\",\n            \"value\": \"C+ (SFP 5)\"\n        },\n        {\n            \"name\": \"operational_zone\",\n            \"valueType\": \"string\",\n            \"value\": \"SUROCCIDENTE\"\n        },\n        {\n            \"name\": \"region_name\",\n            \"valueType\": \"string\",\n            \"value\": \"VALLE\"\n        },\n        {\n            \"name\": \"comune\",\n            \"valueType\": \"string\",\n            \"value\": \"SANTIAGO DE CALI\"\n        },\n        {\n            \"name\": \"polygon\",\n            \"valueType\": \"string\",\n            \"value\": \"CALI\"\n        },\n        {\n            \"name\": \"cto_port_name\",\n            \"valueType\": \"string\",\n            \"value\": \"OUTPUT 0002\"\n        }\n    ],\n    \"productOffering\": {\n        \"id\": \"Ftth\",\n        \"name\": \"FTTH\",\n        \"@baseType\": \"OfferAgreement\",\n        \"@type\": \"Offer\",\n        \"@referredType\": \"98\"\n    },\n    \"productSpecification\": {\n        \"id\": \"FtthAccess\",\n        \"href\": \"https://product-catalog-management.bss.svc.cluster.local/catalog/product/FtthAccess/?environment=PRODUCTION\",\n        \"name\": \"FTTH Access\",\n        \"@baseType\": \"Specification\",\n        \"@type\": \"Product\"\n    },\n    \"relatedParty\": [\n        {\n            \"id\": \"TDC\",\n            \"name\": \"COLOMBIA TELECOMUNICACIONES SA ESP BIC\",\n            \"role\": \"isp\",\n            \"@referredType\": \"CUSTOMER\"\n        }\n    ],\n    \"status\": \"active\"\n}",
+        "column_6",
+        "column_7"
+      ]
+    },
+    {
+      "sheet": "PLANTILLA (TASK)",
+      "rows": 23,
+      "dataRows": 22,
+      "columns": 2,
+      "headerCount": 2,
+      "status": "exported",
+      "reason": "Plantillas CSTASK en formato tabular de asunto y descripcion.",
+      "output": {
+        "json": "src/assets/_DATA/tables/plantilla_task.json",
+        "csv": "src/assets/_DATA/tables/plantilla_task.csv"
+      }
+    },
+    {
+      "sheet": "RESPUESTAS (CSTASK)",
+      "rows": 28,
+      "dataRows": 27,
+      "columns": 2,
+      "headerCount": 2,
+      "status": "exported",
+      "reason": "Respuestas reutilizables CSTASK con estructura tabular simple.",
+      "output": {
+        "json": "src/assets/_DATA/tables/respuestas_cstask.json",
+        "csv": "src/assets/_DATA/tables/respuestas_cstask.csv"
+      }
+    },
+    {
+      "sheet": "NORMALIZACION",
+      "rows": 28,
+      "dataRows": 27,
+      "columns": 2,
+      "headerCount": 2,
+      "status": "skipped",
+      "reason": "Bloques de texto semi-estructurados, mas cercano a notas que a tabla.",
+      "headerPreview": [
+        "Dirección Original: VALLEDUPAR,DG 16 KR 17-69\nCódigo Dirección Servinformación: ekC3sZ7hKAiuc+Y5zs54gR6vlWE1N7VkJ*qiUpecacU=\nDirección Estandarizada: DG 16 # 17 - 69\nPrincipal: DG 16\nGeneradora: 17\nPlaca: 69\nAgregacion: \nComplemento: \nRemanente: \nValidación Placa: 99\nValidación Agregación: 95\nLongitud: -73.2520419\nLatitud: 10.4666631\nFuente Dirección: NUEVA\nDirección Alterna: \nCodigo Localidad: 01\nLocalidad: COMUNA 01\nCodigo Barrio: 117940\nBarrio: BRR LA GRANJA\nManzana: 20001100008331\nNivel Socio Económico: 3\nCódigo DANE: 20001000\nZona Postal: \nplaceid: ONNET.20001000.ekC3sZ7hKAiuc+Y5zs54gR6vlWE1N7VkJ*qiUpecacU=\nEstado Geo: M (Normalizado Y Georreferenciado Exacto Por Predio)",
+        "column_2"
+      ]
+    },
+    {
+      "sheet": "Matriz (N)",
+      "rows": 65,
+      "dataRows": 64,
+      "columns": 4,
+      "headerCount": 4,
+      "status": "skipped",
+      "reason": "Salida matricial orientada a comando y mensaje, sin encabezados reutilizables.",
+      "headerPreview": [
+        "1/1/3/5/",
+        "info configure equipment ont interface 1/1/3/5/[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,28,29,30,31,32,33,34,35,36,37,38,39,40,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64]",
+        "Cordial saludo, en la ► OLT: 10.37.53.78 - OH_SANALPSTC_I_7360_Piedecuesta_3 ► SLOT: 15 ► PORT: 10 se cuenta con Posiciones Libres: \n27,41",
+        "[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,28,29,30,31,32,33,34,35,36,37,38,39,40,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64]"
+      ]
+    },
+    {
+      "sheet": "Matriz (H)",
+      "rows": 64,
+      "dataRows": 63,
+      "columns": 3,
+      "headerCount": 3,
+      "status": "skipped",
+      "reason": "Salida matricial orientada a comando y mensaje, sin encabezados reutilizables.",
+      "headerPreview": [
+        "0/ 2/15",
+        "info configure equipment ont interface 0/ 2/15[]",
+        "Cordial saludo, en la ► OLT: 10.37.53.78 - OH_SANALPSTC_I_7360_Piedecuesta_3 ► SLOT: 15 ► PORT: 10 se cuenta con Posiciones Libres: \n1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64"
+      ]
+    },
+    {
+      "sheet": "OLT",
+      "rows": 370,
+      "dataRows": 369,
+      "columns": 54,
+      "headerCount": 54,
+      "status": "exported",
+      "reason": "Catalogo maestro con 54 columnas bien definidas.",
+      "output": {
+        "json": "src/assets/_DATA/tables/olt.json",
+        "csv": "src/assets/_DATA/tables/olt.csv"
+      }
+    },
+    {
+      "sheet": "Listas",
+      "rows": 215,
+      "dataRows": 214,
+      "columns": 1,
+      "headerCount": 1,
+      "status": "exported",
+      "reason": "Listado plano de perfiles reutilizables.",
+      "output": {
+        "json": "src/assets/_DATA/tables/listas.json",
+        "csv": "src/assets/_DATA/tables/listas.csv"
+      }
+    },
+    {
+      "sheet": "CORRESPONDENCIA",
+      "rows": 55614,
+      "dataRows": 55613,
+      "columns": 6,
+      "headerCount": 6,
+      "status": "exported",
+      "reason": "Tabla de correspondencia OLT/SLOT/PTO/IP/CABLE/SPLITTER.",
+      "output": {
+        "json": "src/assets/_DATA/tables/correspondencia.json",
+        "csv": "src/assets/_DATA/tables/correspondencia.csv"
+      }
+    },
+    {
+      "sheet": "615",
+      "rows": 70,
+      "dataRows": 69,
+      "columns": 63,
+      "headerCount": 63,
+      "status": "exported",
+      "reason": "Inventario de puertos y estados con encabezados completos.",
+      "output": {
+        "json": "src/assets/_DATA/tables/sheet_615.json",
+        "csv": "src/assets/_DATA/tables/sheet_615.csv"
+      }
+    }
+  ]
+}

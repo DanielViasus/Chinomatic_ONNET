@@ -201,7 +201,7 @@
 
 .panel-placeholder__grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.9fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
   flex: 1 1 auto;
   min-height: 0;
@@ -389,7 +389,7 @@
 
 .json-workspace-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.9fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
   align-items: start;
   transition:
@@ -408,26 +408,123 @@
 
 .json-workspace-primary,
 .json-workspace-secondary {
+  --workspace-accent: #c0c7d1;
+  --workspace-accent-strong: #98a2b0;
+  --workspace-accent-soft: rgba(192, 199, 209, 0.11);
+  --workspace-border: rgba(192, 199, 209, 0.15);
+  --workspace-border-strong: rgba(192, 199, 209, 0.22);
+  --workspace-heading: #edf1f5;
+  --workspace-text-soft: #a7b0bb;
+  --workspace-editor-bg: #11161d;
+  --workspace-editor-border: rgba(192, 199, 209, 0.14);
+  --workspace-editor-gutter-bg: rgba(255, 255, 255, 0.028);
+  --workspace-editor-gutter-line: rgba(192, 199, 209, 0.08);
+  --workspace-editor-gutter-text: #848d99;
+  --workspace-editor-text: #d4dbe4;
+  --workspace-editor-shadow: rgba(12, 16, 23, 0.24);
+  --workspace-status-ok-bg: rgba(152, 162, 176, 0.1);
+  --workspace-button-bg: rgba(255, 255, 255, 0.03);
+  --workspace-button-bg-hover: rgba(255, 255, 255, 0.05);
+  --workspace-button-border: rgba(192, 199, 209, 0.14);
+  --workspace-button-border-hover: rgba(214, 220, 228, 0.22);
+  --workspace-button-text: #e0e6ee;
+  --workspace-button-shadow: 0 10px 20px rgba(10, 13, 18, 0.12);
   display: grid;
   gap: 16px;
   min-width: 0;
   padding: 16px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--workspace-border);
   border-radius: 14px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.03),
+    0 0 0 1px color-mix(in srgb, var(--workspace-border) 48%, transparent),
+    0 18px 36px color-mix(in srgb, var(--workspace-editor-shadow) 42%, transparent);
+  backdrop-filter: blur(18px) saturate(1.04);
 }
 
 .json-workspace-primary {
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.018), rgba(255, 255, 255, 0.01)),
-    radial-gradient(circle at top left, rgba(71, 202, 255, 0.05), transparent 36%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.018), rgba(255, 255, 255, 0.006)),
+    radial-gradient(circle at top left, rgba(171, 180, 192, 0.08), transparent 40%),
+    radial-gradient(circle at bottom right, rgba(92, 101, 113, 0.07), transparent 46%),
     var(--panel-sheen);
 }
 
 .json-workspace-secondary {
+  --workspace-accent: #cbc3bb;
+  --workspace-accent-strong: #a69d94;
+  --workspace-accent-soft: rgba(203, 195, 187, 0.11);
+  --workspace-border: rgba(203, 195, 187, 0.15);
+  --workspace-border-strong: rgba(203, 195, 187, 0.22);
+  --workspace-heading: #f1ede8;
+  --workspace-text-soft: #b3aba3;
+  --workspace-editor-bg: #171412;
+  --workspace-editor-border: rgba(203, 195, 187, 0.14);
+  --workspace-editor-gutter-bg: rgba(255, 255, 255, 0.024);
+  --workspace-editor-gutter-line: rgba(203, 195, 187, 0.08);
+  --workspace-editor-gutter-text: #928980;
+  --workspace-editor-text: #ddd6ce;
+  --workspace-editor-shadow: rgba(20, 16, 13, 0.22);
+  --workspace-status-ok-bg: rgba(166, 157, 148, 0.1);
+  --workspace-button-bg: rgba(255, 255, 255, 0.028);
+  --workspace-button-bg-hover: rgba(255, 255, 255, 0.048);
+  --workspace-button-border: rgba(203, 195, 187, 0.13);
+  --workspace-button-border-hover: rgba(220, 214, 207, 0.21);
+  --workspace-button-text: #e9e2da;
+  --workspace-button-shadow: 0 10px 20px rgba(16, 12, 10, 0.11);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.014), rgba(255, 255, 255, 0.008)),
-    radial-gradient(circle at top right, rgba(139, 92, 246, 0.04), transparent 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.016), rgba(255, 255, 255, 0.006)),
+    radial-gradient(circle at top right, rgba(187, 178, 169, 0.08), transparent 38%),
+    radial-gradient(circle at bottom left, rgba(113, 104, 96, 0.07), transparent 46%),
     var(--panel-sheen);
+}
+
+.json-workspace-primary .panel__eyebrow,
+.json-workspace-secondary .panel__eyebrow {
+  color: var(--workspace-text-soft);
+}
+
+.json-workspace-primary .json-input-panel__header h3,
+.json-workspace-secondary .json-input-panel__header h3 {
+  color: var(--workspace-heading);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--workspace-accent-strong) 8%, transparent);
+}
+
+.json-workspace-primary .panel__pill--action,
+.json-workspace-secondary .panel__pill--action,
+.json-workspace-primary .obtener-data-jason-original__action-button,
+.json-workspace-secondary .obtener-data-jason-original__action-button {
+  border-color: var(--workspace-button-border);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.012)),
+    var(--workspace-button-bg);
+  color: var(--workspace-button-text);
+  box-shadow:
+    var(--workspace-button-shadow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 0 14px color-mix(in srgb, var(--workspace-accent-strong) 4%, transparent);
+}
+
+.json-workspace-primary .panel__pill--action:hover:not(:disabled),
+.json-workspace-secondary .panel__pill--action:hover:not(:disabled),
+.json-workspace-primary .obtener-data-jason-original__action-button:hover:not(:disabled),
+.json-workspace-secondary .obtener-data-jason-original__action-button:hover:not(:disabled) {
+  border-color: var(--workspace-button-border-hover);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.016)),
+    var(--workspace-button-bg-hover);
+  color: var(--workspace-heading);
+  box-shadow:
+    var(--workspace-button-shadow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 0 18px color-mix(in srgb, var(--workspace-accent-strong) 6%, transparent);
+}
+
+.json-workspace-primary .obtener-data-jason-original__line-meta,
+.json-workspace-secondary .obtener-data-jason-original__line-meta {
+  border: none;
+  background: transparent;
+  box-shadow: none;
 }
 
 .json-input-panel {
@@ -441,6 +538,33 @@
   gap: 12px;
   align-items: flex-start;
   justify-content: space-between;
+}
+
+.json-input-panel__identity {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  min-width: 0;
+}
+
+.json-input-panel__emoji {
+  flex-shrink: 0;
+  width: 48px;
+  display: grid;
+  place-items: center;
+  font-size: 2.35rem;
+  line-height: 1;
+  user-select: none;
+}
+
+.json-input-panel__copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.json-input-panel__copy .panel__eyebrow {
+  margin-bottom: 0;
 }
 
 .json-input-panel__header > div {
@@ -460,12 +584,16 @@
   display: grid;
   grid-template-columns: 64px minmax(0, 1fr);
   overflow: hidden;
-  border: 1px solid var(--editor-border);
+  border: 1px solid var(--workspace-editor-border, var(--editor-border));
   border-radius: 12px;
-  background: var(--editor-bg);
+  background: var(--workspace-editor-bg, var(--editor-bg));
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.03),
-    0 22px 42px rgba(31, 24, 15, 0.16);
+    0 22px 42px rgba(31, 24, 15, 0.16),
+    0 0 0 1px color-mix(in srgb, var(--workspace-editor-border, transparent) 48%, transparent),
+    inset 0 0 32px color-mix(in srgb, var(--workspace-editor-shadow, transparent) 18%, transparent),
+    0 0 36px color-mix(in srgb, var(--workspace-editor-shadow, transparent) 14%, transparent);
+  backdrop-filter: blur(12px) saturate(1.04);
 }
 
 .editor-lines,
@@ -481,9 +609,10 @@
 .editor-lines {
   overflow: hidden;
   padding: 18px 12px 18px 18px;
-  border-right: 1px solid var(--editor-gutter-line);
-  background: var(--editor-gutter-bg);
-  color: var(--editor-gutter-text);
+  border-right: 1px solid
+    var(--workspace-editor-gutter-line, var(--editor-gutter-line));
+  background: var(--workspace-editor-gutter-bg, var(--editor-gutter-bg));
+  color: var(--workspace-editor-gutter-text, var(--editor-gutter-text));
   text-align: right;
   user-select: none;
 }
@@ -493,7 +622,7 @@
 }
 
 .editor-lines__item--active {
-  color: var(--ink);
+  color: var(--workspace-heading, var(--ink));
   font-weight: 700;
 }
 
@@ -502,16 +631,17 @@
   padding: 18px 22px;
   border: none;
   background: transparent;
-  color: var(--editor-text);
+  color: var(--workspace-editor-text, var(--editor-text));
   resize: none;
   outline: none;
-  caret-color: var(--accent);
+  caret-color: var(--workspace-accent-strong, var(--accent));
   box-shadow: none;
   overflow-x: auto;
   overflow-y: auto;
   white-space: pre;
   word-break: normal;
   overflow-wrap: normal;
+  text-shadow: 0 0 10px color-mix(in srgb, currentColor 10%, transparent);
 }
 
 .editor-highlight {
@@ -529,7 +659,11 @@
   width: 64px;
   background: linear-gradient(
     90deg,
-    color-mix(in srgb, var(--accent) 32%, transparent),
+    color-mix(
+      in srgb,
+      var(--workspace-accent-strong, var(--accent)) 32%,
+      transparent
+    ),
     transparent
   );
 }
@@ -540,12 +674,30 @@
   background:
     linear-gradient(
       90deg,
-      color-mix(in srgb, var(--accent) 24%, transparent),
-      color-mix(in srgb, var(--accent) 10%, transparent)
+      color-mix(
+        in srgb,
+        var(--workspace-accent-strong, var(--accent)) 24%,
+        transparent
+      ),
+      color-mix(
+        in srgb,
+        var(--workspace-accent-strong, var(--accent)) 10%,
+        transparent
+      )
     );
   box-shadow:
-    inset 0 0 0 1px color-mix(in srgb, var(--accent) 28%, transparent),
-    inset 0 0 24px color-mix(in srgb, var(--accent) 12%, transparent);
+    inset 0 0 0 1px
+      color-mix(
+        in srgb,
+        var(--workspace-accent-strong, var(--accent)) 28%,
+        transparent
+      ),
+    inset 0 0 24px
+      color-mix(
+        in srgb,
+        var(--workspace-accent-strong, var(--accent)) 12%,
+        transparent
+      );
 }
 
 .editor-status {
@@ -556,8 +708,34 @@
 }
 
 .editor-status--ok {
-  background: var(--status-ok-bg);
-  color: var(--success-700);
+  background: var(--workspace-status-ok-bg, var(--status-ok-bg));
+  color: color-mix(in srgb, var(--workspace-accent-strong, var(--success-700)) 70%, white 30%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 0 10px color-mix(in srgb, var(--workspace-accent-strong, transparent) 4%, transparent);
+}
+
+.json-workspace-primary .obtener-data-jason-original,
+.json-workspace-secondary .obtener-data-jason-original {
+  border-color: var(--workspace-border);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.018), rgba(255, 255, 255, 0.006)),
+    radial-gradient(circle at top left, color-mix(in srgb, var(--workspace-accent-soft) 72%, transparent), transparent 58%),
+    color-mix(in srgb, var(--workspace-accent-soft) 24%, var(--panel-sheen));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.03),
+    0 0 0 1px color-mix(in srgb, var(--workspace-border-strong) 32%, transparent),
+    0 14px 26px color-mix(in srgb, var(--workspace-editor-shadow) 14%, transparent);
+}
+
+.json-workspace-primary .obtener-data-jason-original__title,
+.json-workspace-secondary .obtener-data-jason-original__title {
+  color: var(--workspace-heading);
+}
+
+.json-workspace-primary .obtener-data-jason-original__label,
+.json-workspace-secondary .obtener-data-jason-original__label {
+  color: color-mix(in srgb, var(--workspace-text-soft) 92%, white 8%);
 }
 
 .editor-status--error {
