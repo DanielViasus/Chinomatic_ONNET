@@ -14,7 +14,10 @@ import {
 } from './jsonToneShared'
 import { findJsonLineNumber, type JsonLineLookupMode } from './jsonLineLookup'
 import VisibilityToggleIcon from './VisibilityToggleIcon'
-import type { JsonItemSnapshot } from './jsonCompactModels'
+import type {
+  JsonItemController,
+  JsonItemSnapshot,
+} from './jsonCompactModels'
 
 type DataItemValueFormatter = (value: unknown, source: unknown) => string
 type ComplementaryLineLookupConfig = {
@@ -54,6 +57,7 @@ type ObtenerDataDelJasonComplementarioProps = {
   mismatchLabels?: string[]
   editedMatchLabels?: string[]
   onLineNumberClick?: (lineNumber: number) => void
+  onControllerReady?: (controller: JsonItemController | null) => void
   onComparableStateChange?: (state: {
     values: Record<string, string>
     dirtyLabels: string[]
@@ -679,10 +683,11 @@ function readStoredToneOverrides(items: ComplementaryDataItem[]): ToneMap {
 function ObtenerDataDelJasonComplementario({
   source,
   sourceText,
-  allowValueEditing = false,
+  allowValueEditing = true,
   mismatchLabels = [],
   editedMatchLabels = [],
   onLineNumberClick,
+  onControllerReady,
   onComparableStateChange,
   onItemsSnapshotChange,
   visibilityByLabel = {},
@@ -756,6 +761,7 @@ function ObtenerDataDelJasonComplementario({
         id: itemKey,
         label: item.label,
         value: currentValue,
+        originalValue,
         tone: toneAssignments[toneKey] ?? item.tone ?? 'gray',
         isEditable: allowValueEditing,
         isDirty: currentValue !== originalValue,
@@ -814,6 +820,68 @@ function ObtenerDataDelJasonComplementario({
   useEffect(() => {
     onItemsSnapshotChange?.(JSON.parse(snapshotItemsJson) as JsonItemSnapshot[])
   }, [onItemsSnapshotChange, snapshotItemsJson])
+
+  useEffect(() => {
+    if (!onControllerReady) {
+      return
+    }
+
+    const originalValuesById = JSON.parse(sourceSignature) as EditableValuesMap
+
+    const controller: JsonItemController = {
+      setValue(itemId, nextValue) {
+        const originalValue = originalValuesById[itemId]
+
+        if (typeof originalValue !== 'string') {
+          return
+        }
+
+        setEditableState((currentState) => {
+          const currentValues =
+            currentState.sourceSignature === sourceSignature
+              ? currentState.values
+              : {}
+
+          if (nextValue === originalValue) {
+            const remainingValues = { ...currentValues }
+            delete remainingValues[itemId]
+
+            return {
+              sourceSignature,
+              values: remainingValues,
+            }
+          }
+
+          return {
+            sourceSignature,
+            values: {
+              ...currentValues,
+              [itemId]: nextValue,
+            },
+          }
+        })
+      },
+      resetValue(itemId) {
+        setEditableState((currentState) => {
+          const currentValues =
+            currentState.sourceSignature === sourceSignature
+              ? currentState.values
+              : {}
+          const remainingValues = { ...currentValues }
+          delete remainingValues[itemId]
+
+          return {
+            sourceSignature,
+            values: remainingValues,
+          }
+        })
+      },
+    }
+
+    onControllerReady(controller)
+
+    return () => onControllerReady(null)
+  }, [onControllerReady, sourceSignature])
 
   function handleValueChange(
     itemKey: string,
@@ -1048,7 +1116,9 @@ function ObtenerDataDelJasonComplementario({
                   ? 'obtener-data-jason-original__item--mismatch'
                   : hasEditedMatch
                     ? 'obtener-data-jason-original__item--edited-match'
-                    : ''
+                    : isDirty
+                      ? 'obtener-data-jason-original__item--dirty'
+                      : ''
               }`}
             >
               <button

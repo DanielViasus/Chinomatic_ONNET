@@ -7,6 +7,8 @@ type CompactReferenceBarProps = {
   items: JsonItemSnapshot[]
   onEditableValueChange?: (itemId: string, nextValue: string) => void
   onVisibilityToggle?: (label: string) => void
+  highlightedLabel?: string | null
+  onHighlightedLabelChange?: (label: string | null) => void
 }
 
 function CompactReferenceBar({
@@ -14,6 +16,8 @@ function CompactReferenceBar({
   items,
   onEditableValueChange,
   onVisibilityToggle,
+  highlightedLabel,
+  onHighlightedLabelChange,
 }: CompactReferenceBarProps) {
   if (items.length === 0) {
     return null
@@ -33,8 +37,22 @@ function CompactReferenceBar({
                 ? 'compact-reference__item--mismatch'
                 : item.hasEditedMatch
                   ? 'compact-reference__item--edited-match'
-                  : ''
+                  : item.isDirty
+                    ? 'compact-reference__item--dirty'
+                    : ''
+            } ${
+              highlightedLabel === item.label
+                ? 'compact-reference__item--highlighted'
+                : ''
             }`}
+            onMouseEnter={() => onHighlightedLabelChange?.(item.label)}
+            onMouseLeave={() => onHighlightedLabelChange?.(null)}
+            onFocus={() => onHighlightedLabelChange?.(item.label)}
+            onBlur={(event) => {
+              if (!event.currentTarget.contains(event.relatedTarget)) {
+                onHighlightedLabelChange?.(null)
+              }
+            }}
           >
             <span className="compact-reference__dot" aria-hidden="true" />
 

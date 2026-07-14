@@ -1,0 +1,97 @@
+.workspace-alerts {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.workspace-alerts__item {
+  --workspace-alert-color: #bcc7db;
+  --workspace-alert-tint: rgba(148, 163, 184, 0.1);
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 30px;
+  padding: 4px 9px;
+  border: 1px solid color-mix(in srgb, var(--workspace-alert-color) 58%, var(--line));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--workspace-alert-color) 8%, var(--pill-bg));
+  color: var(--workspace-alert-color);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  animation: workspace-alert-pulse 0.65s ease-in-out infinite;
+}
+
+.workspace-alerts__item strong {
+  font-size: 0.61rem;
+  letter-spacing: 0.06em;
+}
+
+.workspace-alerts__dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--workspace-alert-color);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--workspace-alert-color) 42%, transparent);
+}
+
+.workspace-alerts__source {
+  color: var(--ink-soft);
+  font-size: 0.52rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.workspace-alerts__value {
+  min-width: 0;
+  max-width: 22ch;
+  overflow-x: auto;
+  color: var(--workspace-alert-color);
+  font-weight: 750;
+  white-space: nowrap;
+  scrollbar-width: none;
+}
+
+.workspace-alerts__value::-webkit-scrollbar {
+  display: none;
+}
+
+.workspace-alerts__separator {
+  color: var(--ink-soft);
+  opacity: 0.72;
+}
+
+.workspace-alerts__item--violet { --workspace-alert-color: #b79bff; }
+.workspace-alerts__item--red { --workspace-alert-color: #ff8b8b; }
+.workspace-alerts__item--green { --workspace-alert-color: #5fe0b4; }
+.workspace-alerts__item--blue { --workspace-alert-color: #82bbff; }
+.workspace-alerts__item--yellow { --workspace-alert-color: #f7c15d; }
+.workspace-alerts__item--orange { --workspace-alert-color: #ffab6e; }
+.workspace-alerts__item--teal { --workspace-alert-color: #5be0d1; }
+.workspace-alerts__item--pink { --workspace-alert-color: #ff8fcb; }
+.workspace-alerts__item--cyan { --workspace-alert-color: #67def3; }
+
+@keyframes workspace-alert-pulse {
+  0%,
+  100% {
+    border-color: color-mix(in srgb, var(--workspace-alert-color) 48%, var(--line));
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--workspace-alert-color) 10%, transparent);
+  }
+
+  50% {
+    border-color: color-mix(in srgb, var(--workspace-alert-color) 86%, white 14%);
+    box-shadow:
+      0 0 0 2px color-mix(in srgb, var(--workspace-alert-color) 30%, transparent),
+      0 0 15px color-mix(in srgb, var(--workspace-alert-color) 34%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workspace-alerts__item {
+    animation: none;
+  }
+}

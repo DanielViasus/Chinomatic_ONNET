@@ -4,6 +4,7 @@ export type JsonItemSnapshot = {
   id: string
   label: string
   value: string
+  originalValue: string
   tone: DataItemTone
   isEditable: boolean
   isDirty: boolean
@@ -13,4 +14,5 @@ export type JsonItemSnapshot = {
 
 export type JsonItemController = {
   setValue: (itemId: string, nextValue: string) => void
+  resetValue: (itemId: string) => void
 }

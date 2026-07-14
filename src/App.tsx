@@ -11,343 +11,28 @@ import './App.css'
 import CompactReferenceBar from './components/CompactReferenceBar'
 import ObtenerDataDelJasonComplementario from './components/ObtenerDataDelJasonComplementario'
 import ObtenerDataDelJasonOriginal from './components/ObtenerDataDelJasonOriginal'
+import OltReferencePanel from './components/OltReferencePanel'
 import Selector_Tema from './components/Selector_Tema'
+import ValidationCommandsPanel from './components/ValidationCommandsPanel'
+import WorkspaceAlertSummary from './components/WorkspaceAlertSummary'
 import type {
   JsonItemController,
   JsonItemSnapshot,
 } from './components/jsonCompactModels'
 
-const sampleService = {
-  id: 'c84f6b2f-7bde-11f1-823a-37f73621a399',
-  label: 'OnNetService_CAI_ONT42000120202607060921553962223079',
-  resourceTypeId: 'onnet.resourceTypes.OnNetInternetServiceCfs',
-  productId: 'd7e48de0-fb66-11ee-970e-85b17a634b58',
-  domainId: 'built-in',
-  tenantId: '7bb0708c-f9c4-11ee-b10e-df6135db04cf',
-  shared: false,
-  subDomainId: '7fd5144c-552f-39a3-9464-08d3b9cfb251',
-  properties: {
-    productSpecification: 'RfsLogicalAccess',
-    gemPortData: '2',
-    olt: '10.37.55.210',
-    accessId: 'c84f6b2f-7bde-11f1-823a-37f73621a399',
-    innerVlanData: '1934',
-    ontVlanData: '100',
-    upOpticalProfileData: 'Speedy_500M',
-    serviceIdData: '3892143670466',
-    customerType: 'Residential',
-    networkVlanData: '2032',
-    downSpeedData: '512000',
-    queuePriorityData: '0',
-    activationTypeData: 'vlan-QnQ',
-    shelf: '1',
-    port: '10',
-    registrationTypeValue: '9U7V0CQVD8',
-    downOpticalProfileData: 'Speedy_500M',
-    logicalPort: '35',
-    ontType: 'GPON',
-    productId: 'CAI_ONT42000120202607060921553962223079',
-    upSpeedData: '512000',
-    slot: '15',
-    ontSrvprofile: 'ONT_4_ETH_1_FXS',
-    vno: 'TDC',
-    registrationType: 'PasswordID',
-  },
-  discovered: false,
-  differences: [],
-  desiredOrchState: 'active',
-  orchState: 'active',
-  reason: '',
-  tags: {},
-  providerData: {},
-  updatedAt: '2026-07-09T21:42:40.519Z',
-  createdAt: '2026-07-09T21:40:19.962Z',
-  revision: 232048972,
-  autoClean: false,
-  updateState: 'successful',
-  updateReason: '',
-  updateCount: 11,
-}
-
-const sampleComplementaryService = {
-  product: [
-    {
-      id: '9f4339bf-c9a1-4cb1-bba9-f9471c024743',
-      name: 'CFS BA',
-      startDate: '2026-07-09T21:40:26.453Z',
-      productCharacteristic: [
-        {
-          name: 'Down_optical_profile',
-          valueType: 'string',
-          value: 'Speedy_500M',
-        },
-        {
-          name: 'DownloadSpeed',
-          valueType: 'string',
-          value: '512000',
-        },
-        {
-          name: 'Up_optical_profile',
-          valueType: 'string',
-          value: 'Speedy_500M',
-        },
-        {
-          name: 'UploadSpeed',
-          valueType: 'string',
-          value: '512000',
-        },
-        {
-          name: 'Network_VLAN_BA',
-          valueType: 'string',
-          value: '2032',
-        },
-        {
-          name: 'ONT_VLAN_BA',
-          valueType: 'string',
-          value: '100',
-        },
-      ],
-    },
-  ],
-  id: '0d75153c-ed54-497c-bbd9-2c4c2dbb13ce',
-  externalId: 'CAI_ONT42000120202607060921553962223079',
-  name: 'FTTH Access',
-  orderDate: '2026-07-06T14:22:12.149933Z',
-  startDate: '2026-07-09T21:40:19Z',
-  place: [
-    {
-      id: 'ONNET.68547000.f4JucDEX1nyGfdoNF+sviccTVGUnndXcQGCt1b81v9qQmDSazaaicHafz59eOfH4LeUUfyb5pQH*am4L0zcHPg==',
-      role: 'installationAddress',
-      '@type': 'GeographicAddress',
-    },
-  ],
-  productCharacteristic: [
-    {
-      name: 'serialId',
-      valueType: 'string',
-      value: '',
-    },
-    {
-      name: 'typeOnt',
-      valueType: 'string',
-      value: 'ONT_4_ETH_1_FXS',
-    },
-    {
-      name: 'MunicipalityCode',
-      valueType: 'string',
-      value: '68547',
-    },
-    {
-      name: 'ActivationType',
-      valueType: 'string',
-      value: 'PasswordId',
-    },
-    {
-      name: 'ProvisioningType',
-      valueType: 'string',
-      value: 'Automatic',
-    },
-    {
-      name: 'ProductId',
-      valueType: 'string',
-      value: 'CAI_ONT42000120202607060921553962223079',
-    },
-    {
-      name: 'DownloadSpeed',
-      valueType: 'string',
-      value: '512000',
-    },
-    {
-      name: 'UploadSpeed',
-      valueType: 'string',
-      value: '512000',
-    },
-    {
-      name: 'customerType',
-      valueType: 'string',
-      value: 'Residential',
-    },
-    {
-      name: 'PonTechnology',
-      valueType: 'string',
-      value: 'GPON',
-    },
-    {
-      name: 'CTOCoordinateX',
-      valueType: 'string',
-      value: '-73.05975622',
-    },
-    {
-      name: 'CTOCoordinateY',
-      valueType: 'string',
-      value: '6.97043164',
-    },
-    {
-      name: 'CTOType',
-      valueType: 'single_line_text',
-      value: '11',
-    },
-    {
-      name: 'PortName',
-      valueType: 'single_line_text',
-      value: 'OUTPUT 0001',
-    },
-    {
-      name: 'PortID',
-      valueType: 'single_line_text',
-      value: '0001',
-    },
-    {
-      name: 'PasswordId',
-      valueType: 'string',
-      value: '9U7V0CQVD8',
-    },
-    {
-      name: 'UIPCoordinateX',
-      valueType: 'string',
-      value: '-73.05995274',
-    },
-    {
-      name: 'UIPCoordinateY',
-      valueType: 'string',
-      value: '6.97075259',
-    },
-    {
-      name: 'UIPPlaceId',
-      valueType: 'string',
-      value: 'ONNET.68547000.f4JucDEX1nyGfdoNF+sviccTVGUnndXcQGCt1b81v9qQmDSazaaicHafz59eOfH4LeUUfyb5pQH*am4L0zcHPg==',
-    },
-    {
-      name: 'OLTName',
-      valueType: 'string',
-      value: 'OH_SANALPSTC_I_7360',
-    },
-    {
-      name: 'CTOName',
-      valueType: 'string',
-      value: 'PIEDE-PC2-99-07',
-    },
-    {
-      name: 'SplitterID',
-      valueType: 'string',
-      value: 'SS2-99-07',
-    },
-    {
-      name: 'SplitterPortName',
-      valueType: 'string',
-      value: 'OUTPUT 0001',
-    },
-    {
-      name: 'CTOAccessPointType',
-      valueType: 'string',
-      value: '11',
-    },
-    {
-      name: 'DropId',
-      valueType: 'string',
-      value: '',
-    },
-    {
-      name: 'department',
-      valueType: 'string',
-      value: 'SANTANDER',
-    },
-    {
-      name: 'onu_id',
-      valueType: 'string',
-      value: '35',
-    },
-    {
-      name: 'shelf',
-      valueType: 'string',
-      value: 'Shelf Pos 1',
-    },
-    {
-      name: 'device_name',
-      valueType: 'string',
-      value: 'OH_SANALPSTC_I_7360_Piedecuesta_3',
-    },
-    {
-      name: 'card',
-      valueType: 'string',
-      value: '15',
-    },
-    {
-      name: 'pluggable_name',
-      valueType: 'string',
-      value: 'C+ (SFP 10)',
-    },
-    {
-      name: 'operational_zone',
-      valueType: 'string',
-      value: 'ORIENTE',
-    },
-    {
-      name: 'region_name',
-      valueType: 'string',
-      value: 'ORIENTE',
-    },
-    {
-      name: 'comune',
-      valueType: 'string',
-      value: 'PIEDECUESTA',
-    },
-    {
-      name: 'polygon',
-      valueType: 'string',
-      value: 'SANTANDER (AREA METROPOLITANA 1)',
-    },
-    {
-      name: 'cto_port_name',
-      valueType: 'string',
-      value: 'OUTPUT 0001',
-    },
-  ],
-  productOffering: {
-    id: 'Ftth',
-    name: 'FTTH',
-    '@baseType': 'OfferAgreement',
-    '@type': 'Offer',
-    '@referredType': '98',
-  },
-  productOrderItem: [
-    {
-      orderItemAction: 'ADD',
-      orderItemId: '1',
-      productOrderId: '390835aa-a6fa-49df-9b24-2f8d19ccc324',
-      role: 'creator',
-    },
-    {
-      orderItemAction: 'MODIFY',
-      orderItemId: '1',
-      productOrderId: '4378c5c7-a7a9-438c-aae4-cfad9551cdd7',
-      role: 'modifier',
-    },
-  ],
-  productSpecification: {
-    id: 'FtthAccess',
-    href: 'https://product-catalog-management.bss.svc.cluster.local/catalog/product/FtthAccess/?environment=PRODUCTION',
-    name: 'FTTH Access',
-    '@baseType': 'Specification',
-    '@type': 'Product',
-  },
-  relatedParty: [
-    {
-      id: 'TDC',
-      name: 'COLOMBIA TELECOMUNICACIONES SA ESP BIC',
-      role: 'isp',
-      '@referredType': 'CUSTOMER',
-    },
-  ],
-  status: 'active',
-}
-
+import {
+  sampleComplementaryService,
+  sampleService,
+} from './assets/_DATA/serviceExamples'
 const initialJson = JSON.stringify(sampleService, null, 2)
 const initialComplementaryJson = JSON.stringify(sampleComplementaryService, null, 2)
 const themeStorageKey = 'chinomatic-theme'
-const primaryJsonStorageKey = 'chinomatic-primary-json'
-const secondaryJsonStorageKey = 'chinomatic-secondary-json'
+const primaryJsonStorageKey = 'chinomatic-primary-json-v2'
+const secondaryJsonStorageKey = 'chinomatic-secondary-json-v2'
 const itemVisibilityStorageKey = 'chinomatic-item-visibility'
+const editorsPanelExpandedStorageKey = 'chinomatic-editors-panel-expanded-v1'
+const deploymentTablesExpandedStorageKey =
+  'chinomatic-deployment-tables-expanded-v1'
 
 type ParseResult = {
   error: string | null
@@ -723,6 +408,16 @@ function readStoredItemVisibility(): Record<string, boolean> {
   }
 }
 
+function readStoredExpandedState(storageKey: string): boolean {
+  if (typeof window === 'undefined') {
+    return true
+  }
+
+  const storedValue = window.localStorage.getItem(storageKey)
+
+  return storedValue === null ? true : storedValue === 'true'
+}
+
 function createInitialEditorState(
   storageKey: string,
   fallbackRawJson: string,
@@ -876,10 +571,21 @@ function App() {
   const [secondarySnapshotItems, setSecondarySnapshotItems] = useState<
     JsonItemSnapshot[]
   >([])
+  const [highlightedDataLabel, setHighlightedDataLabel] = useState<
+    string | null
+  >(null)
   const [itemVisibilityByLabel, setItemVisibilityByLabel] = useState<
     Record<string, boolean>
   >(readStoredItemVisibility)
+  const [isEditorsPanelExpanded, setIsEditorsPanelExpanded] =
+    useState(() => readStoredExpandedState(editorsPanelExpandedStorageKey))
+  const [isDeploymentTablesExpanded, setIsDeploymentTablesExpanded] =
+    useState(() =>
+      readStoredExpandedState(deploymentTablesExpandedStorageKey),
+    )
   const [primaryController, setPrimaryController] =
+    useState<JsonItemController | null>(null)
+  const [secondaryController, setSecondaryController] =
     useState<JsonItemController | null>(null)
   const panelRef = useRef<HTMLElement | null>(null)
   const lineNumbersRef = useRef<HTMLDivElement | null>(null)
@@ -969,6 +675,20 @@ function App() {
       JSON.stringify(itemVisibilityByLabel),
     )
   }, [itemVisibilityByLabel])
+
+  useEffect(() => {
+    window.localStorage.setItem(
+      editorsPanelExpandedStorageKey,
+      String(isEditorsPanelExpanded),
+    )
+  }, [isEditorsPanelExpanded])
+
+  useEffect(() => {
+    window.localStorage.setItem(
+      deploymentTablesExpandedStorageKey,
+      String(isDeploymentTablesExpanded),
+    )
+  }, [isDeploymentTablesExpanded])
 
   useLayoutEffect(() => {
     if (typeof window === 'undefined') {
@@ -1282,6 +1002,20 @@ function App() {
     primaryController?.setValue(itemId, nextValue)
   }
 
+  function handleValidationValuesReset(labels: ComparableDataLabel[]) {
+    const originalValues = getPrimaryComparableValues(parsedJson)
+
+    for (const label of labels) {
+      const item = primarySnapshotItems.find(
+        (snapshotItem) => snapshotItem.label === label,
+      )
+
+      if (item) {
+        primaryController?.setValue(item.id, originalValues[label] ?? '')
+      }
+    }
+  }
+
   return (
     <main className="app-shell app-shell--minimal">
       <Selector_Tema
@@ -1289,10 +1023,6 @@ function App() {
         onSelectTheme={applyTheme}
         onToggleTheme={toggleTheme}
       />
-
-      <section className="hero-panel hero-panel--minimal">
-        <h1>Lectura operacional de Data.</h1>
-      </section>
 
       <div className="workspace-stack">
         <section ref={panelRef} className="panel">
@@ -1308,7 +1038,40 @@ function App() {
             construyendo la interfaz.
           </p>
 
-          <div className="json-workspace-grid">
+          <section
+            className={`json-shared-panel json-shared-panel--editors ${
+              isEditorsPanelExpanded ? '' : 'json-workspace--collapsed'
+            }`}
+          >
+            <div className="json-shared-panel__header">
+              <button
+                type="button"
+                className="json-workspace__disclosure"
+                aria-expanded={isEditorsPanelExpanded}
+                aria-controls="shared-json-editors-content"
+                onClick={() =>
+                  setIsEditorsPanelExpanded((currentValue) => !currentValue)
+                }
+              >
+                <span
+                  className="json-workspace__disclosure-icon"
+                  aria-hidden="true"
+                />
+                <span className="json-shared-panel__heading-copy">
+                  <span className="panel__eyebrow">Entrada JSON</span>
+                  <strong>Editores de código</strong>
+                </span>
+              </button>
+            </div>
+
+            <div
+              id="shared-json-editors-content"
+              className="json-workspace__content"
+              aria-hidden={!isEditorsPanelExpanded}
+              inert={isEditorsPanelExpanded ? undefined : true}
+            >
+              <div className="json-workspace__content-inner">
+                <div className="json-workspace-grid">
             <section className="json-workspace-primary">
               <section className="json-input-panel">
                 <div className="json-input-panel__header">
@@ -1335,6 +1098,11 @@ function App() {
                     {isPrimaryEditorEmpty ? 'Pegar' : 'Borrar todo'}
                   </button>
                 </div>
+
+                <div
+                  className="json-workspace__content"
+                >
+                  <div className="json-workspace__content-inner">
 
                 <div
                   className={`editor-shell ${
@@ -1398,88 +1166,10 @@ function App() {
                       ? 'Area limpia. Pega un JSON para continuar.'
                       : 'JSON valido. Listo para seguir construyendo.'}
                 </p>
-              </section>
 
-              <div className="data-panels-grid">
-                <ObtenerDataDelJasonOriginal
-                  source={parsedJson}
-                  sourceText={rawJson}
-                  mismatchLabels={mismatchLabels}
-                  editedMatchLabels={editedMatchLabels}
-                  onControllerReady={setPrimaryController}
-                  onComparableStateChange={setPrimaryComparableState}
-                  onItemsSnapshotChange={setPrimarySnapshotItems}
-                  visibilityByLabel={itemVisibilityByLabel}
-                  onVisibilityToggle={(label) =>
-                    setItemVisibilityByLabel((currentState) => ({
-                      ...currentState,
-                      [label]: !(currentState[label] ?? false),
-                    }))
-                  }
-                  onLineNumberClick={(lineNumber) =>
-                    handleLineNumberClick('primary', lineNumber)
-                  }
-                  items={[
-                    {
-                      label: 'OLT',
-                      propertyPath: 'properties.olt',
-                    },
-                    {
-                      label: 'SLOT',
-                      propertyPath: 'properties.slot',
-                      tone: 'red',
-                    },
-                    {
-                      label: 'PORT',
-                      propertyPath: 'properties.port',
-                      tone: 'green',
-                    },
-                    {
-                      label: 'ONUID',
-                      propertyPath: 'properties.logicalPort',
-                      tone: 'blue',
-                    },
-                    {
-                      label: 'PASSWORD',
-                      propertyPath: 'properties.registrationTypeValue',
-                      tone: 'yellow',
-                    },
-                    {
-                      label: 'NETWORKVLAN',
-                      propertyPath: 'properties.networkVlanData',
-                      tone: 'orange',
-                    },
-                    {
-                      label: 'INNERVLAN',
-                      propertyPath: 'properties.innerVlanData',
-                      tone: 'pink',
-                    },
-                    {
-                      label: 'VLAN',
-                      propertyPath: 'properties.ontVlanData',
-                    },
-                    {
-                      label: 'PROFILEDATA',
-                      propertyPath: 'properties.downOpticalProfileData',
-                    },
-                    {
-                      label: 'VNO',
-                      propertyPath: 'properties.vno',
-                      lineSearchKey: 'vno',
-                      formatValue: (value, source) =>
-                        formatVnoValue(value, source),
-                    },
-                    {
-                      label: 'ACCESID',
-                      propertyPath: 'properties.accessId',
-                    },
-                    {
-                      label: 'PRODUCTID',
-                      propertyPath: 'properties.productId',
-                    },
-                  ]}
-                />
-              </div>
+                  </div>
+                </div>
+              </section>
             </section>
 
             <section className="json-workspace-secondary">
@@ -1508,6 +1198,11 @@ function App() {
                     {isSecondaryEditorEmpty ? 'Pegar' : 'Borrar todo'}
                   </button>
                 </div>
+
+                <div
+                  className="json-workspace__content"
+                >
+                  <div className="json-workspace__content-inner">
 
                 <div
                   className={`editor-shell ${
@@ -1578,35 +1273,170 @@ function App() {
                       ? 'Area limpia. Pega el JSON complementario.'
                       : 'JSON valido. Listo para seguir construyendo.'}
                 </p>
-              </section>
 
-              <div className="data-panels-grid">
-                <ObtenerDataDelJasonComplementario
-                  source={parsedJsonSecondary}
-                  sourceText={rawJsonSecondary}
-                  mismatchLabels={mismatchLabels}
-                  editedMatchLabels={editedMatchLabels}
-                  onComparableStateChange={setSecondaryComparableState}
-                  onItemsSnapshotChange={setSecondarySnapshotItems}
-                  visibilityByLabel={itemVisibilityByLabel}
-                  onVisibilityToggle={(label) =>
-                    setItemVisibilityByLabel((currentState) => ({
-                      ...currentState,
-                      [label]: !(currentState[label] ?? false),
-                    }))
-                  }
-                  onLineNumberClick={(lineNumber) =>
-                    handleLineNumberClick('secondary', lineNumber)
-                  }
-                />
-              </div>
+                  </div>
+                </div>
+              </section>
             </section>
-          </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section
+            className={`json-shared-panel json-shared-panel--tables ${
+              isDeploymentTablesExpanded ? '' : 'json-workspace--collapsed'
+            }`}
+          >
+            <div className="json-shared-panel__header">
+              <button
+                type="button"
+                className="json-workspace__disclosure"
+                aria-expanded={isDeploymentTablesExpanded}
+                aria-controls="shared-deployment-tables-content"
+                onClick={() =>
+                  setIsDeploymentTablesExpanded(
+                    (currentValue) => !currentValue,
+                  )
+                }
+              >
+                <span
+                  className="json-workspace__disclosure-icon"
+                  aria-hidden="true"
+                />
+                <span className="json-shared-panel__heading-copy">
+                  <span className="panel__eyebrow">Datos extraídos</span>
+                  <strong>Tablas de despliegue</strong>
+                </span>
+              </button>
+            </div>
+
+            {!isDeploymentTablesExpanded ? (
+              <WorkspaceAlertSummary
+                source="both"
+                primaryItems={primarySnapshotItems}
+                secondaryItems={secondarySnapshotItems}
+                mismatchLabels={mismatchLabels}
+              />
+            ) : null}
+
+            <div
+              id="shared-deployment-tables-content"
+              className="json-workspace__content"
+              aria-hidden={!isDeploymentTablesExpanded}
+              inert={isDeploymentTablesExpanded ? undefined : true}
+            >
+              <div className="json-workspace__content-inner">
+                <div className="data-panels-grid">
+                  <ObtenerDataDelJasonOriginal
+                    source={parsedJson}
+                    sourceText={rawJson}
+                    mismatchLabels={mismatchLabels}
+                    editedMatchLabels={editedMatchLabels}
+                    onControllerReady={setPrimaryController}
+                    onComparableStateChange={setPrimaryComparableState}
+                    onItemsSnapshotChange={setPrimarySnapshotItems}
+                    visibilityByLabel={itemVisibilityByLabel}
+                    onVisibilityToggle={(label) =>
+                      setItemVisibilityByLabel((currentState) => ({
+                        ...currentState,
+                        [label]: !(currentState[label] ?? false),
+                      }))
+                    }
+                    onLineNumberClick={(lineNumber) =>
+                      handleLineNumberClick('primary', lineNumber)
+                    }
+                    items={[
+                      {
+                        label: 'OLT',
+                        propertyPath: 'properties.olt',
+                      },
+                      {
+                        label: 'SLOT',
+                        propertyPath: 'properties.slot',
+                        tone: 'red',
+                      },
+                      {
+                        label: 'PORT',
+                        propertyPath: 'properties.port',
+                        tone: 'green',
+                      },
+                      {
+                        label: 'ONUID',
+                        propertyPath: 'properties.logicalPort',
+                        tone: 'blue',
+                      },
+                      {
+                        label: 'PASSWORD',
+                        propertyPath: 'properties.registrationTypeValue',
+                        tone: 'yellow',
+                      },
+                      {
+                        label: 'NETWORKVLAN',
+                        propertyPath: 'properties.networkVlanData',
+                        tone: 'orange',
+                      },
+                      {
+                        label: 'INNERVLAN',
+                        propertyPath: 'properties.innerVlanData',
+                        tone: 'pink',
+                      },
+                      {
+                        label: 'VLAN',
+                        propertyPath: 'properties.ontVlanData',
+                      },
+                      {
+                        label: 'PROFILEDATA',
+                        propertyPath: 'properties.downOpticalProfileData',
+                      },
+                      {
+                        label: 'VNO',
+                        propertyPath: 'properties.vno',
+                        lineSearchKey: 'vno',
+                        formatValue: (value, source) =>
+                          formatVnoValue(value, source),
+                      },
+                      {
+                        label: 'ACCESID',
+                        propertyPath: 'properties.accessId',
+                      },
+                      {
+                        label: 'PRODUCTID',
+                        propertyPath: 'properties.productId',
+                      },
+                    ]}
+                  />
+
+                  <ObtenerDataDelJasonComplementario
+                    source={parsedJsonSecondary}
+                    sourceText={rawJsonSecondary}
+                    onControllerReady={setSecondaryController}
+                    mismatchLabels={mismatchLabels}
+                    editedMatchLabels={editedMatchLabels}
+                    onComparableStateChange={setSecondaryComparableState}
+                    onItemsSnapshotChange={setSecondarySnapshotItems}
+                    visibilityByLabel={itemVisibilityByLabel}
+                    onVisibilityToggle={(label) =>
+                      setItemVisibilityByLabel((currentState) => ({
+                        ...currentState,
+                        [label]: !(currentState[label] ?? false),
+                      }))
+                    }
+                    onLineNumberClick={(lineNumber) =>
+                      handleLineNumberClick('secondary', lineNumber)
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
         </section>
 
         <CompactReferenceBar
           isVisible={canShowCompactReference}
           items={compactReferenceItems}
+          highlightedLabel={highlightedDataLabel}
+          onHighlightedLabelChange={setHighlightedDataLabel}
           onEditableValueChange={handleCompactReferenceValueChange}
           onVisibilityToggle={(label) =>
             setItemVisibilityByLabel((currentState) => ({
@@ -1614,6 +1444,60 @@ function App() {
               [label]: !(currentState[label] ?? false),
             }))
           }
+        />
+
+        <OltReferencePanel ip={primaryComparableState.values.OLT} />
+
+        <ValidationCommandsPanel
+          ip={primaryComparableState.values.OLT}
+          slot={primaryComparableState.values.SLOT}
+          port={primaryComparableState.values.PORT}
+          onuid={primaryComparableState.values.ONUID}
+          highlightedLabel={highlightedDataLabel}
+          onHighlightedLabelChange={setHighlightedDataLabel}
+          dirtyLabels={[
+            ...new Set([
+              ...primaryComparableState.dirtyLabels,
+              ...secondaryComparableState.dirtyLabels,
+            ]),
+          ]}
+          onResetValues={handleValidationValuesReset}
+          onPropertyValueChange={(source, itemId, nextValue) =>
+            (source === 'primary'
+              ? primaryController
+              : secondaryController
+            )?.setValue(itemId, nextValue)
+          }
+          onPropertyValueReset={(source, itemId, originalValue) =>
+            (source === 'primary'
+              ? primaryController
+              : secondaryController
+            )?.setValue(itemId, originalValue)
+          }
+          availableProperties={mergeCompactItems(
+            primarySnapshotItems,
+            secondarySnapshotItems,
+          ).map((item) => ({
+            label: item.label,
+            value: item.value,
+            tone: item.tone,
+            itemId: item.id,
+            isEditable: item.isEditable,
+            isDirty: item.isDirty,
+            originalValue: item.originalValue,
+            source: primarySnapshotItems.some(
+              (primaryItem) => primaryItem.label === item.label,
+            )
+              ? 'primary'
+              : 'secondary',
+          }))}
+          tones={Object.fromEntries(
+            primarySnapshotItems
+              .filter((item) =>
+                ['SLOT', 'PORT', 'ONUID'].includes(item.label),
+              )
+              .map((item) => [item.label, item.tone]),
+          )}
         />
 
         <div

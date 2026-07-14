@@ -73,6 +73,10 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.03),
     0 0 0 1px color-mix(in srgb, var(--line) 52%, transparent);
   overflow: hidden;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    transform 150ms ease;
 }
 
 .compact-reference__item--gray {
@@ -201,13 +205,25 @@
   animation: compact-reference-mismatch 0.72s ease-in-out infinite;
 }
 
-.compact-reference__item--edited-match {
+.compact-reference__item--edited-match,
+.compact-reference__item--dirty {
   border-color: var(--mismatch-border-rest);
   box-shadow:
     inset 0 0 0 999px var(--mismatch-surface-overlay),
     0 0 0 1px var(--mismatch-shadow-soft),
     0 0 0 0 var(--mismatch-shadow-soft);
   animation: compact-reference-match 0.55s ease-in-out infinite;
+}
+
+.compact-reference__item--highlighted {
+  z-index: 1;
+  border-color: color-mix(in srgb, var(--compact-item-value-color) 78%, white 22%);
+  box-shadow:
+    inset 0 0 0 999px color-mix(in srgb, var(--compact-item-value-color) 10%, transparent),
+    0 0 0 2px color-mix(in srgb, var(--compact-item-value-color) 32%, transparent),
+    0 0 18px color-mix(in srgb, var(--compact-item-value-color) 38%, transparent);
+  transform: translateY(-1px) scale(1.02);
+  animation: none;
 }
 
 .compact-reference__dot {
@@ -396,7 +412,48 @@
   }
 
   .compact-reference__item--mismatch,
-  .compact-reference__item--edited-match {
+  .compact-reference__item--edited-match,
+  .compact-reference__item--dirty {
     animation: none;
   }
+}
+
+:root[data-theme='light'] .compact-reference__item--gray {
+  --compact-item-value-color: #62697a;
+}
+
+:root[data-theme='light'] .compact-reference__item--violet {
+  --compact-item-value-color: #7350b8;
+}
+
+:root[data-theme='light'] .compact-reference__item--red {
+  --compact-item-value-color: #ad4e5b;
+}
+
+:root[data-theme='light'] .compact-reference__item--green {
+  --compact-item-value-color: #297660;
+}
+
+:root[data-theme='light'] .compact-reference__item--blue {
+  --compact-item-value-color: #426da8;
+}
+
+:root[data-theme='light'] .compact-reference__item--yellow {
+  --compact-item-value-color: #8d6a1d;
+}
+
+:root[data-theme='light'] .compact-reference__item--orange {
+  --compact-item-value-color: #a15d2c;
+}
+
+:root[data-theme='light'] .compact-reference__item--teal {
+  --compact-item-value-color: #26776e;
+}
+
+:root[data-theme='light'] .compact-reference__item--pink {
+  --compact-item-value-color: #9e4d78;
+}
+
+:root[data-theme='light'] .compact-reference__item--cyan {
+  --compact-item-value-color: #34778a;
 }

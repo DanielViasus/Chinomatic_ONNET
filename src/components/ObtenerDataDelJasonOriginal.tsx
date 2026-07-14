@@ -373,6 +373,7 @@ function ObtenerDataDelJasonOriginal({
         id: itemKey,
         label: item.label,
         value: currentValue,
+        originalValue,
         tone: toneAssignments[toneKey] ?? item.tone ?? 'gray',
         isEditable: true,
         isDirty: currentValue !== originalValue,
@@ -469,6 +470,21 @@ function ObtenerDataDelJasonOriginal({
               ...currentValues,
               [itemId]: nextValue,
             },
+          }
+        })
+      },
+      resetValue(itemId) {
+        setEditableState((currentState) => {
+          const currentValues =
+            currentState.sourceSignature === sourceSignature
+              ? currentState.values
+              : {}
+          const remainingValues = { ...currentValues }
+          delete remainingValues[itemId]
+
+          return {
+            sourceSignature,
+            values: remainingValues,
           }
         })
       },
@@ -665,7 +681,9 @@ function ObtenerDataDelJasonOriginal({
                   ? 'obtener-data-jason-original__item--mismatch'
                   : hasEditedMatch
                     ? 'obtener-data-jason-original__item--edited-match'
-                    : ''
+                    : isDirty
+                      ? 'obtener-data-jason-original__item--dirty'
+                      : ''
               }`}
             >
               <button

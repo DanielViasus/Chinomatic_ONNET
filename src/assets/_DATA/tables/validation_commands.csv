@@ -1,0 +1,14 @@
+excel_row,huawei_type,huawei_template,nokia_type,nokia_template
+19,command,enable,command,environment inhibit-alarms
+20,command,config,,
+21,,,command,show equipment slot
+22,command,display board 0/{slot} | begin 0/{slot}/{port},command,show equipment ont status pon 1/1/{slot}/{port}
+23,command,display current-configuration ont 0/{slot}/{port} {onuid},command,info configure equipment ont interface 1/1/{slot}/{port}/{onuid}
+24,command,interface gpon 0/{slot},,
+25,command,display ont info {port} {onuid},,
+26,command,display ont optical-info {port} all,,
+27,command,display service-port port 0/{slot}/{port} ont {onuid},command,info configure bridge port 1/1/{slot}/{port}/{onuid}/1/1
+28,command,display service-port port 0/{slot}/{port} ont {onuid} gemport 3,command,info configure igmp channel vlan:1/1/{slot}/{port}/{onuid}/1/1:102
+29,literal,5848,command,show interface port ont:1/1/{slot}/{port}/{onuid} detail
+30,command,display mac-address port 0/{slot}/{port} ont {onuid},command,info configure qos interface 1/1/{slot}/{port}/{onuid}/1/1 flat
+31,,,command,show vlan bridge-port-fdb 1/1/{slot}/{port}/{onuid}/1/1
