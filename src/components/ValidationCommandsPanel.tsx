@@ -15,6 +15,9 @@ import deleteIgmpRows from '../assets/_DATA/tables/delete_igmp_commands.json'
 import deleteVlanServiceRows from '../assets/_DATA/tables/delete_vlan_service_commands.json'
 import { oltReferenceByIp } from '../assets/_DATA/oltReferenceLookup'
 import CloneIcon from './CloneIcon'
+import CommandLockToast, {
+  type CommandLockNotice,
+} from './CommandLockToast'
 import CornerUpLeftIcon from './CornerUpLeftIcon'
 import LockIcon from './LockIcon'
 import LockSlashIcon from './LockSlashIcon'
@@ -118,6 +121,11 @@ type PersonalCommand = {
 type CopiedCommandToast = {
   id: number
   value: string
+}
+
+type CommandLockDetails = {
+  title: string
+  command: string
 }
 
 const validationCommandRows = validationRows as ValidationRow[]
@@ -372,6 +380,61 @@ function readStoredLockedCommands(): Set<string> {
   } catch {
     return new Set()
   }
+}
+
+function getVisibleCommandRows(container: ParentNode): HTMLElement[] {
+  return Array.from(
+    container.querySelectorAll<HTMLElement>(
+      '[data-command-navigation="true"]',
+    ),
+  ).filter(
+    (commandRow) =>
+      commandRow.closest('.validation-commands__content')?.getAttribute(
+        'aria-hidden',
+      ) !== 'true',
+  )
+}
+
+function getAdjacentSectionCommandRow(
+  currentGroup: Element,
+  direction: -1 | 1,
+): HTMLElement | null {
+  const commandsPanel = currentGroup.closest('.validation-commands')
+
+  if (!commandsPanel) {
+    return null
+  }
+
+  const groups = Array.from(
+    commandsPanel.querySelectorAll<HTMLElement>(
+      '.validation-commands__group',
+    ),
+  )
+  const currentGroupIndex = groups.indexOf(currentGroup as HTMLElement)
+
+  for (
+    let groupIndex = currentGroupIndex + direction;
+    groupIndex >= 0 && groupIndex < groups.length;
+    groupIndex += direction
+  ) {
+    const commandRows = getVisibleCommandRows(groups[groupIndex])
+
+    if (commandRows.length > 0) {
+      return direction === 1
+        ? commandRows[0]
+        : commandRows[commandRows.length - 1]
+    }
+  }
+
+  return null
+}
+
+function focusCommandAfterSectionToggle(commandRow: HTMLElement | null) {
+  if (!commandRow) {
+    return
+  }
+
+  window.requestAnimationFrame(() => commandRow.focus())
 }
 
 function createPersonalCommandId(): string {
@@ -1051,6 +1114,7 @@ function VendorTable({
   onPersonalCommandReset,
   onPersonalCommandDelete,
   isExpanded,
+  onToggleSection,
   lockedCommandKeys,
   onToggleCommandLock,
   onPropertyValueChange,
@@ -1079,8 +1143,12 @@ function VendorTable({
   onPersonalCommandReset: (commandId: string) => void
   onPersonalCommandDelete: (commandId: string) => void
   isExpanded: boolean
+  onToggleSection: () => void
   lockedCommandKeys: Set<string>
-  onToggleCommandLock: (commandKey: string) => void
+  onToggleCommandLock: (
+    commandKey: string,
+    details: CommandLockDetails,
+  ) => void
   onPropertyValueChange?: (
     source: 'primary' | 'secondary',
     itemId: string,
@@ -1229,16 +1297,9 @@ function VendorTable({
       const commandsPanel = event.currentTarget.closest(
         '.validation-commands',
       )
-      const commandRows = Array.from(
-        commandsPanel?.querySelectorAll<HTMLElement>(
-          '[data-command-navigation="true"]',
-        ) ?? [],
-      ).filter(
-        (commandRow) =>
-          commandRow.closest('.validation-commands__content')?.getAttribute(
-            'aria-hidden',
-          ) !== 'true',
-      )
+      const commandRows = commandsPanel
+        ? getVisibleCommandRows(commandsPanel)
+        : []
       const currentIndex = commandRows.indexOf(event.currentTarget)
       const direction = event.key === 'ArrowUp' ? -1 : 1
       const nextIndex = Math.min(
@@ -1250,6 +1311,32 @@ function VendorTable({
         commandRows[nextIndex]?.focus()
         playNavigationSound(direction)
       }
+      return
+    }
+
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+      event.preventDefault()
+      const currentGroup = event.currentTarget.closest(
+        '.validation-commands__group',
+      )
+
+      if (isExpanded && currentGroup) {
+        const currentRowIsLocked =
+          event.currentTarget.dataset.commandLocked === 'true'
+        const firstLockedRow = currentGroup.querySelector<HTMLElement>(
+          '[data-command-navigation="true"][data-command-locked="true"]',
+        )
+        const nextCommandRow =
+          firstLockedRow ??
+          getAdjacentSectionCommandRow(currentGroup, 1) ??
+          getAdjacentSectionCommandRow(currentGroup, -1)
+
+        if (!currentRowIsLocked) {
+          focusCommandAfterSectionToggle(nextCommandRow)
+        }
+      }
+
+      onToggleSection()
     }
   }
 
@@ -1284,8 +1371,12 @@ function VendorTable({
               aria-live="polite"
               style={{ zIndex: 2000 + toast.id }}
             >
-              <strong>Se copió propiedad</strong>
-              <p>{toast.value}</p>
+              <CloneIcon className="validation-commands__copy-toast-icon" />
+              <div className="validation-commands__copy-toast-content">
+                <strong>Se copió el comando</strong>
+                <span>Listo en el portapapeles</span>
+                <p>{toast.value}</p>
+              </div>
             </aside>,
             document.body,
             String(toast.id),
@@ -1344,6 +1435,7 @@ function VendorTable({
                   : ''
               }`}
               data-command-navigation="true"
+              data-command-locked={isLocked ? 'true' : 'false'}
               tabIndex={0}
               onKeyDown={handleCommandNavigation}
               onCopy={(event) =>
@@ -1383,7 +1475,12 @@ function VendorTable({
                       : ''
                   }`}
                   aria-pressed={isLocked}
-                  onClick={() => onToggleCommandLock(commandKey)}
+                  onClick={() =>
+                    onToggleCommandLock(commandKey, {
+                      title: commandTitle,
+                      command: resolvedCommand,
+                    })
+                  }
                   aria-label={`${isLocked ? 'Desbloquear' : 'Bloquear'} comando de la fila ${excelRow}`}
                 >
                   {isLocked ? (
@@ -1465,6 +1562,7 @@ function VendorTable({
                   : ''
               }`}
               data-command-navigation="true"
+              data-command-locked={isLocked ? 'true' : 'false'}
               tabIndex={0}
               onKeyDown={handleCommandNavigation}
               onCopy={(event) =>
@@ -1523,7 +1621,13 @@ function VendorTable({
                         : ''
                     }`}
                     aria-pressed={isLocked}
-                    onClick={() => onToggleCommandLock(personalCommandKey)}
+                    onClick={() =>
+                      onToggleCommandLock(personalCommandKey, {
+                        title:
+                          personalCommand.title || `Personal ${index + 1}`,
+                        command: resolvedCommand,
+                      })
+                    }
                     aria-label={`${isLocked ? 'Desbloquear' : 'Bloquear'} comando personalizado ${index + 1}`}
                   >
                     {isLocked ? (
@@ -1636,6 +1740,10 @@ function ValidationCommandsPanel({
   const [lockedCommandKeys, setLockedCommandKeys] = useState(
     readStoredLockedCommands,
   )
+  const [commandLockNotice, setCommandLockNotice] =
+    useState<CommandLockNotice | null>(null)
+  const commandLockNoticeIdRef = useRef(0)
+  const commandLockNoticeTimerRef = useRef<number | null>(null)
   const [expandedSections, setExpandedSections] = useState({
     validation: readStoredCommandsExpanded(
       validationCommandsExpandedStorageKey,
@@ -1755,6 +1863,10 @@ function ValidationCommandsPanel({
       )) {
         window.clearTimeout(timer)
       }
+
+      if (commandLockNoticeTimerRef.current !== null) {
+        window.clearTimeout(commandLockNoticeTimerRef.current)
+      }
     },
     [],
   )
@@ -1795,7 +1907,13 @@ function ValidationCommandsPanel({
     )
   }
 
-  function toggleCommandLock(commandKey: string) {
+  function toggleCommandLock(
+    commandKey: string,
+    details: CommandLockDetails,
+  ) {
+    const isLocked = lockedCommandKeys.has(commandKey)
+    const nextIsLocked = !isLocked
+
     setLockedCommandKeys((currentKeys) => {
       const nextKeys = new Set(currentKeys)
 
@@ -1807,6 +1925,24 @@ function ValidationCommandsPanel({
 
       return nextKeys
     })
+
+    const noticeId = ++commandLockNoticeIdRef.current
+    setCommandLockNotice({
+      id: noticeId,
+      vendor: visibleVendor as Vendor,
+      title: details.title,
+      command: details.command,
+      isLocked: nextIsLocked,
+    })
+
+    if (commandLockNoticeTimerRef.current !== null) {
+      window.clearTimeout(commandLockNoticeTimerRef.current)
+    }
+
+    commandLockNoticeTimerRef.current = window.setTimeout(() => {
+      setCommandLockNotice(null)
+      commandLockNoticeTimerRef.current = null
+    }, 3300)
   }
 
   if (!values.slot || !values.port || !values.onuid || !visibleVendor) {
@@ -1922,6 +2058,7 @@ function ValidationCommandsPanel({
           })
         }}
         isExpanded={isExpanded}
+        onToggleSection={() => toggleDisclosure(commandSection)}
         lockedCommandKeys={lockedCommandKeys}
         onToggleCommandLock={toggleCommandLock}
         onPropertyValueChange={onPropertyValueChange}
@@ -1977,6 +2114,45 @@ function ValidationCommandsPanel({
             aria-expanded={isExpanded}
             aria-controls={`${section}-commands-content`}
             onClick={() => toggleDisclosure(section)}
+            onKeyDown={(event) => {
+              const currentGroup = event.currentTarget.closest(
+                '.validation-commands__group',
+              )
+
+              if (
+                currentGroup &&
+                (event.key === 'ArrowUp' || event.key === 'ArrowDown')
+              ) {
+                event.preventDefault()
+                const direction = event.key === 'ArrowUp' ? -1 : 1
+                const currentSectionRows = getVisibleCommandRows(currentGroup)
+                const nextCommandRow =
+                  direction === 1 && currentSectionRows.length > 0
+                    ? currentSectionRows[0]
+                    : getAdjacentSectionCommandRow(currentGroup, direction)
+
+                nextCommandRow?.focus()
+                return
+              }
+
+              if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+                event.preventDefault()
+
+                if (isExpanded && currentGroup) {
+                  const firstLockedRow = currentGroup.querySelector<HTMLElement>(
+                    '[data-command-navigation="true"][data-command-locked="true"]',
+                  )
+                  const nextCommandRow =
+                    firstLockedRow ??
+                    getAdjacentSectionCommandRow(currentGroup, 1) ??
+                    getAdjacentSectionCommandRow(currentGroup, -1)
+
+                  focusCommandAfterSectionToggle(nextCommandRow)
+                }
+
+                toggleDisclosure(section)
+              }
+            }}
           >
             <span
               className="validation-commands__disclosure-icon"
@@ -2031,6 +2207,8 @@ function ValidationCommandsPanel({
 
   return (
     <section className="validation-commands">
+      <CommandLockToast notice={commandLockNotice} />
+
       <div className="validation-commands__section-heading">
         <h3>Tabla de Comandos</h3>
       </div>

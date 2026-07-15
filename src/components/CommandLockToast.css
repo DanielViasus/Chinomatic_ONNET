@@ -1,0 +1,121 @@
+.command-lock-toast {
+  --command-lock-color: #8b5cf6;
+  position: fixed;
+  z-index: 2300;
+  right: 24px;
+  bottom: 24px;
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr);
+  gap: 13px;
+  align-items: center;
+  width: min(390px, calc(100vw - 32px));
+  box-sizing: border-box;
+  padding: 14px 16px 14px 13px;
+  border: 1px solid
+    color-mix(in srgb, var(--command-lock-color) 55%, var(--line));
+  border-radius: 14px;
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--command-lock-color) 13%, transparent),
+      transparent 62%
+    ),
+    color-mix(in srgb, var(--panel) 96%, var(--command-lock-color) 4%);
+  box-shadow:
+    0 20px 48px rgba(5, 8, 16, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(15px);
+  pointer-events: none;
+  animation:
+    command-lock-toast-in 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    command-lock-toast-out 420ms ease 2.78s forwards;
+}
+
+.command-lock-toast--nokia {
+  --command-lock-color: #4f8edb;
+}
+
+.command-lock-toast--huawei {
+  --command-lock-color: #d65a62;
+}
+
+.command-lock-toast--unlocked {
+  --command-lock-color: #94a3b8;
+}
+
+.command-lock-toast__icon {
+  width: 48px;
+  height: 48px;
+  color: var(--command-lock-color);
+  filter: drop-shadow(
+    0 0 9px color-mix(in srgb, var(--command-lock-color) 42%, transparent)
+  );
+}
+
+.command-lock-toast__content {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.command-lock-toast__content strong {
+  color: var(--ink);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.command-lock-toast__content span {
+  color: var(--command-lock-color);
+  font-size: 0.66rem;
+  font-weight: 760;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.command-lock-toast__content p {
+  max-height: 3em;
+  margin: 2px 0 0;
+  overflow: hidden;
+  color: var(--ink-soft);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+@keyframes command-lock-toast-in {
+  from {
+    opacity: 0;
+    transform: translate3d(18px, 18px, 0) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes command-lock-toast-out {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translate3d(12px, -14px, 0) scale(0.98);
+  }
+}
+
+@media (max-width: 640px) {
+  .command-lock-toast {
+    right: 16px;
+    bottom: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .command-lock-toast {
+    animation: none;
+  }
+}

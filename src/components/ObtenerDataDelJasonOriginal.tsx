@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './ObtenerDataDelJasonOriginal.css'
 import {
   areToneMapsEqual,
@@ -45,6 +45,11 @@ type ObtenerDataDelJasonOriginalProps = {
   onItemsSnapshotChange?: (items: JsonItemSnapshot[]) => void
   visibilityByLabel?: Record<string, boolean>
   onVisibilityToggle?: (label: string) => void
+  onValueModified?: (change: {
+    label: string
+    value: string
+    tone: DataItemTone
+  }) => void
 }
 
 type EditableValuesMap = Record<string, string>
@@ -325,6 +330,7 @@ function ObtenerDataDelJasonOriginal({
   onItemsSnapshotChange,
   visibilityByLabel = {},
   onVisibilityToggle,
+  onValueModified,
 }: ObtenerDataDelJasonOriginalProps) {
   const itemsSignature = getItemsSignature(items)
   const originalValues = buildInitialValues(source, items)
@@ -339,6 +345,11 @@ function ObtenerDataDelJasonOriginal({
     itemsSignature,
     overrides: readStoredToneOverrides(items),
   }))
+  const onValueModifiedRef = useRef(onValueModified)
+
+  useEffect(() => {
+    onValueModifiedRef.current = onValueModified
+  }, [onValueModified])
   const editableValues =
     editableState.sourceSignature === sourceSignature
       ? editableState.values
@@ -348,6 +359,17 @@ function ObtenerDataDelJasonOriginal({
     toneState.itemsSignature === itemsSignature
       ? resolveToneAssignments(items, toneState.overrides)
       : resolveToneAssignments(items, readStoredToneOverrides(items))
+  const itemNoticeMetadataSignature = JSON.stringify(
+    Object.fromEntries(
+      items.map((item) => [
+        getItemKey(item),
+        {
+          label: item.label,
+          tone: toneAssignments[getToneKey(item)] ?? item.tone ?? 'gray',
+        },
+      ]),
+    ),
+  )
   const currentValuesByLabel = Object.fromEntries(
     items.map((item) => {
       const itemKey = getItemKey(item)
@@ -439,6 +461,10 @@ function ObtenerDataDelJasonOriginal({
     }
 
     const originalValuesById = JSON.parse(sourceSignature) as EditableValuesMap
+    const itemNoticeMetadata = JSON.parse(itemNoticeMetadataSignature) as Record<
+      string,
+      { label: string; tone: DataItemTone }
+    >
 
     const controller: JsonItemController = {
       setValue(itemId, nextValue) {
@@ -446,6 +472,15 @@ function ObtenerDataDelJasonOriginal({
 
         if (typeof originalValue !== 'string') {
           return
+        }
+
+        if (nextValue !== originalValue) {
+          const itemMetadata = itemNoticeMetadata[itemId]
+          onValueModifiedRef.current?.({
+            label: itemMetadata?.label ?? 'DATO',
+            value: nextValue,
+            tone: itemMetadata?.tone ?? 'gray',
+          })
         }
 
         setEditableState((currentState) => {
@@ -495,13 +530,23 @@ function ObtenerDataDelJasonOriginal({
     return () => {
       onControllerReady(null)
     }
-  }, [onControllerReady, sourceSignature])
+  }, [itemNoticeMetadataSignature, onControllerReady, sourceSignature])
 
   function handleValueChange(
     itemKey: string,
+    itemLabel: string,
+    itemTone: DataItemTone,
     nextValue: string,
     originalValue: string,
   ) {
+    if (nextValue !== originalValue) {
+      onValueModifiedRef.current?.({
+        label: itemLabel,
+        value: nextValue,
+        tone: itemTone,
+      })
+    }
+
     setEditableState((currentState) => {
       const currentValues =
         currentState.sourceSignature === sourceSignature
@@ -727,6 +772,8 @@ function ObtenerDataDelJasonOriginal({
                   onChange={(event) =>
                     handleValueChange(
                       itemKey,
+                      item.label,
+                      tone,
                       event.currentTarget.value,
                       originalValue,
                     )

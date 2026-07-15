@@ -9,6 +9,12 @@ import {
 import { flushSync } from 'react-dom'
 import './App.css'
 import CompactReferenceBar from './components/CompactReferenceBar'
+import CompactReferenceAdditionToast, {
+  type CompactReferenceAdditionNotice,
+} from './components/CompactReferenceAdditionToast'
+import ExtractedDataModificationToast, {
+  type ExtractedDataModificationNotice,
+} from './components/ExtractedDataModificationToast'
 import ObtenerDataDelJasonComplementario from './components/ObtenerDataDelJasonComplementario'
 import ObtenerDataDelJasonOriginal from './components/ObtenerDataDelJasonOriginal'
 import OltReferencePanel from './components/OltReferencePanel'
@@ -588,6 +594,15 @@ function App() {
     useState<JsonItemController | null>(null)
   const [secondaryController, setSecondaryController] =
     useState<JsonItemController | null>(null)
+  const [dataModificationNotice, setDataModificationNotice] =
+    useState<ExtractedDataModificationNotice | null>(null)
+  const [compactReferenceAdditionNotice, setCompactReferenceAdditionNotice] =
+    useState<CompactReferenceAdditionNotice | null>(null)
+  const dataModificationNoticeIdRef = useRef(0)
+  const dataModificationDebounceTimerRef = useRef<number | null>(null)
+  const dataModificationHideTimerRef = useRef<number | null>(null)
+  const compactReferenceAdditionNoticeIdRef = useRef(0)
+  const compactReferenceAdditionTimerRef = useRef<number | null>(null)
   const panelRef = useRef<HTMLElement | null>(null)
   const lineNumbersRef = useRef<HTMLDivElement | null>(null)
   const secondaryLineNumbersRef = useRef<HTMLDivElement | null>(null)
@@ -634,10 +649,13 @@ function App() {
     secondaryEditorHighlight,
     secondaryEditorScrollTop,
   )
-  const compactReferenceItems = mergeCompactItems(
+  const allCompactReferenceItems = mergeCompactItems(
     primarySnapshotItems,
     secondarySnapshotItems,
-  ).filter((item) => itemVisibilityByLabel[item.label] ?? false)
+  )
+  const compactReferenceItems = allCompactReferenceItems.filter(
+    (item) => itemVisibilityByLabel[item.label] ?? false,
+  )
   const canShowCompactReference =
     compactReferenceItems.length > 0 &&
     !parseError &&
@@ -690,6 +708,23 @@ function App() {
       String(isDeploymentTablesExpanded),
     )
   }, [isDeploymentTablesExpanded])
+
+  useEffect(
+    () => () => {
+      if (dataModificationDebounceTimerRef.current !== null) {
+        window.clearTimeout(dataModificationDebounceTimerRef.current)
+      }
+
+      if (dataModificationHideTimerRef.current !== null) {
+        window.clearTimeout(dataModificationHideTimerRef.current)
+      }
+
+      if (compactReferenceAdditionTimerRef.current !== null) {
+        window.clearTimeout(compactReferenceAdditionTimerRef.current)
+      }
+    },
+    [],
+  )
 
   useLayoutEffect(() => {
     if (typeof window === 'undefined') {
@@ -996,11 +1031,81 @@ function App() {
     applyTheme(theme === 'dark' ? 'light' : 'dark')
   }
 
+  function queueDataModificationNotice(
+    source: ExtractedDataModificationNotice['source'],
+    change: Pick<
+      ExtractedDataModificationNotice,
+      'label' | 'value' | 'tone'
+    >,
+  ) {
+    if (dataModificationDebounceTimerRef.current !== null) {
+      window.clearTimeout(dataModificationDebounceTimerRef.current)
+    }
+
+    dataModificationDebounceTimerRef.current = window.setTimeout(() => {
+      const noticeId = ++dataModificationNoticeIdRef.current
+
+      setDataModificationNotice({
+        id: noticeId,
+        source,
+        label: change.label,
+        value: change.value,
+        tone: change.tone,
+      })
+      dataModificationDebounceTimerRef.current = null
+
+      if (dataModificationHideTimerRef.current !== null) {
+        window.clearTimeout(dataModificationHideTimerRef.current)
+      }
+
+      dataModificationHideTimerRef.current = window.setTimeout(() => {
+        setDataModificationNotice(null)
+        dataModificationHideTimerRef.current = null
+      }, 3300)
+    }, 420)
+  }
+
   function handleCompactReferenceValueChange(
     itemId: string,
     nextValue: string,
   ) {
     primaryController?.setValue(itemId, nextValue)
+  }
+
+  function handleItemVisibilityToggle(label: string) {
+    const isCurrentlyVisible = itemVisibilityByLabel[label] ?? false
+    const willBeVisible = !isCurrentlyVisible
+
+    setItemVisibilityByLabel((currentState) => ({
+      ...currentState,
+      [label]: !(currentState[label] ?? false),
+    }))
+
+    const changedItem = allCompactReferenceItems.find(
+      (item) => item.label === label,
+    )
+
+    if (!changedItem) {
+      return
+    }
+
+    const noticeId = ++compactReferenceAdditionNoticeIdRef.current
+    setCompactReferenceAdditionNotice({
+      id: noticeId,
+      label: changedItem.label,
+      value: changedItem.value,
+      tone: changedItem.tone,
+      isVisible: willBeVisible,
+    })
+
+    if (compactReferenceAdditionTimerRef.current !== null) {
+      window.clearTimeout(compactReferenceAdditionTimerRef.current)
+    }
+
+    compactReferenceAdditionTimerRef.current = window.setTimeout(() => {
+      setCompactReferenceAdditionNotice(null)
+      compactReferenceAdditionTimerRef.current = null
+    }, 3300)
   }
 
   function handleValidationValuesReset(labels: ResettableCommandDataLabel[]) {
@@ -1030,6 +1135,11 @@ function App() {
         theme={theme}
         onSelectTheme={applyTheme}
         onToggleTheme={toggleTheme}
+      />
+
+      <ExtractedDataModificationToast notice={dataModificationNotice} />
+      <CompactReferenceAdditionToast
+        notice={compactReferenceAdditionNotice}
       />
 
       <div className="workspace-stack">
@@ -1345,14 +1455,12 @@ function App() {
                     onComparableStateChange={setPrimaryComparableState}
                     onItemsSnapshotChange={setPrimarySnapshotItems}
                     visibilityByLabel={itemVisibilityByLabel}
-                    onVisibilityToggle={(label) =>
-                      setItemVisibilityByLabel((currentState) => ({
-                        ...currentState,
-                        [label]: !(currentState[label] ?? false),
-                      }))
-                    }
+                    onVisibilityToggle={handleItemVisibilityToggle}
                     onLineNumberClick={(lineNumber) =>
                       handleLineNumberClick('primary', lineNumber)
+                    }
+                    onValueModified={(change) =>
+                      queueDataModificationNotice('blueplanet', change)
                     }
                     items={[
                       {
@@ -1424,14 +1532,12 @@ function App() {
                     onComparableStateChange={setSecondaryComparableState}
                     onItemsSnapshotChange={setSecondarySnapshotItems}
                     visibilityByLabel={itemVisibilityByLabel}
-                    onVisibilityToggle={(label) =>
-                      setItemVisibilityByLabel((currentState) => ({
-                        ...currentState,
-                        [label]: !(currentState[label] ?? false),
-                      }))
-                    }
+                    onVisibilityToggle={handleItemVisibilityToggle}
                     onLineNumberClick={(lineNumber) =>
                       handleLineNumberClick('secondary', lineNumber)
+                    }
+                    onValueModified={(change) =>
+                      queueDataModificationNotice('Beesion', change)
                     }
                   />
                 </div>
@@ -1446,12 +1552,7 @@ function App() {
           highlightedLabel={highlightedDataLabel}
           onHighlightedLabelChange={setHighlightedDataLabel}
           onEditableValueChange={handleCompactReferenceValueChange}
-          onVisibilityToggle={(label) =>
-            setItemVisibilityByLabel((currentState) => ({
-              ...currentState,
-              [label]: !(currentState[label] ?? false),
-            }))
-          }
+          onVisibilityToggle={handleItemVisibilityToggle}
         />
 
         <OltReferencePanel ip={primaryComparableState.values.OLT} />

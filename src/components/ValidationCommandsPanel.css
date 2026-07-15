@@ -238,22 +238,26 @@
   z-index: 2000;
   bottom: 24px;
   right: 24px;
-  width: min(360px, calc(100vw - 32px));
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr);
+  gap: 13px;
+  align-items: center;
+  width: min(390px, calc(100vw - 32px));
   box-sizing: border-box;
-  padding: 13px 15px;
-  border: 1px solid color-mix(in srgb, var(--vendor-color) 48%, var(--line));
-  border-radius: 12px;
+  padding: 14px 16px 14px 13px;
+  border: 1px solid color-mix(in srgb, var(--vendor-color) 55%, var(--line));
+  border-radius: 14px;
   background:
     linear-gradient(
       135deg,
-      color-mix(in srgb, var(--vendor-color) 9%, transparent),
-      transparent 58%
+      color-mix(in srgb, var(--vendor-color) 13%, transparent),
+      transparent 62%
     ),
     color-mix(in srgb, var(--panel) 96%, var(--vendor-color) 4%);
   box-shadow:
-    0 18px 42px rgba(5, 8, 16, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(14px);
+    0 20px 48px rgba(5, 8, 16, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(15px);
   pointer-events: none;
   animation:
     validation-command-toast-in 360ms cubic-bezier(0.22, 1, 0.36, 1),
@@ -269,22 +273,44 @@
   --vendor-color: #d65a62;
 }
 
+.validation-commands__copy-toast-icon {
+  width: 48px;
+  height: 48px;
+  color: var(--vendor-color);
+  filter: drop-shadow(
+    0 0 9px color-mix(in srgb, var(--vendor-color) 42%, transparent)
+  );
+}
+
+.validation-commands__copy-toast-content {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
 .validation-commands__copy-toast strong {
   display: block;
-  margin-bottom: 6px;
+  color: var(--ink);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.validation-commands__copy-toast-content > span {
   color: var(--vendor-color);
-  font-size: 0.72rem;
-  letter-spacing: 0.035em;
+  font-size: 0.66rem;
+  font-weight: 760;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .validation-commands__copy-toast p {
-  max-height: 6.4em;
-  margin: 0;
-  overflow: auto;
-  color: var(--ink);
+  max-height: 3em;
+  margin: 2px 0 0;
+  overflow: hidden;
+  color: var(--ink-soft);
   font-family: var(--font-mono);
   font-size: 0.7rem;
-  line-height: 1.45;
+  line-height: 1.4;
   overflow-wrap: anywhere;
   white-space: pre-wrap;
 }

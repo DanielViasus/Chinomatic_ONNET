@@ -1,0 +1,141 @@
+.compact-reference-addition-toast {
+  --compact-addition-color: #2fc9ad;
+  position: fixed;
+  z-index: 2250;
+  bottom: 24px;
+  right: 24px;
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr);
+  gap: 13px;
+  align-items: center;
+  width: min(390px, calc(100vw - 32px));
+  box-sizing: border-box;
+  padding: 14px 16px 14px 13px;
+  border: 1px solid
+    color-mix(in srgb, var(--compact-addition-color) 55%, var(--line));
+  border-radius: 14px;
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--compact-addition-color) 13%, transparent),
+      transparent 62%
+    ),
+    color-mix(in srgb, var(--panel) 96%, var(--compact-addition-color) 4%);
+  box-shadow:
+    0 20px 48px rgba(5, 8, 16, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(15px);
+  pointer-events: none;
+  animation:
+    compact-reference-addition-in 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    compact-reference-addition-out 420ms ease 2.78s forwards;
+}
+
+.compact-reference-addition-toast--hidden {
+  --compact-addition-color: #f08a5d;
+}
+
+.compact-reference-addition-toast__icon {
+  width: 48px;
+  height: 48px;
+  color: var(--compact-addition-color);
+  filter: drop-shadow(
+    0 0 9px color-mix(in srgb, var(--compact-addition-color) 42%, transparent)
+  );
+}
+
+.compact-reference-addition-toast__content {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.compact-reference-addition-toast__content strong {
+  color: var(--ink);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.compact-reference-addition-toast__content > span {
+  color: var(--compact-addition-color);
+  font-size: 0.66rem;
+  font-weight: 760;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.compact-reference-addition-toast__content p {
+  max-height: 3em;
+  margin: 2px 0 0;
+  overflow: hidden;
+  color: var(--ink-soft);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.compact-reference-addition-toast__property {
+  color: var(--property-tone-color, var(--ink));
+  font-weight: 800;
+}
+
+.compact-reference-addition-toast__property--gray { --property-tone-color: #bcc7db; }
+.compact-reference-addition-toast__property--violet { --property-tone-color: #b79bff; }
+.compact-reference-addition-toast__property--red { --property-tone-color: #ff8b8b; }
+.compact-reference-addition-toast__property--green { --property-tone-color: #5fe0b4; }
+.compact-reference-addition-toast__property--blue { --property-tone-color: #82bbff; }
+.compact-reference-addition-toast__property--yellow { --property-tone-color: #f7c15d; }
+.compact-reference-addition-toast__property--orange { --property-tone-color: #ffab6e; }
+.compact-reference-addition-toast__property--teal { --property-tone-color: #5be0d1; }
+.compact-reference-addition-toast__property--pink { --property-tone-color: #ff8fcb; }
+.compact-reference-addition-toast__property--cyan { --property-tone-color: #67def3; }
+
+:root[data-theme='light'] .compact-reference-addition-toast__property--gray { --property-tone-color: #62697a; }
+:root[data-theme='light'] .compact-reference-addition-toast__property--violet { --property-tone-color: #7350b8; }
+:root[data-theme='light'] .compact-reference-addition-toast__property--red { --property-tone-color: #ad4e5b; }
+:root[data-theme='light'] .compact-reference-addition-toast__property--green { --property-tone-color: #297660; }
+:root[data-theme='light'] .compact-reference-addition-toast__property--blue { --property-tone-color: #426da8; }
+:root[data-theme='light'] .compact-reference-addition-toast__property--yellow { --property-tone-color: #8d6a1d; }
+:root[data-theme='light'] .compact-reference-addition-toast__property--orange { --property-tone-color: #a15d2c; }
+:root[data-theme='light'] .compact-reference-addition-toast__property--teal { --property-tone-color: #26776e; }
+:root[data-theme='light'] .compact-reference-addition-toast__property--pink { --property-tone-color: #9e4d78; }
+:root[data-theme='light'] .compact-reference-addition-toast__property--cyan { --property-tone-color: #34778a; }
+
+@keyframes compact-reference-addition-in {
+  from {
+    opacity: 0;
+    transform: translate3d(18px, 18px, 0) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes compact-reference-addition-out {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translate3d(12px, -14px, 0) scale(0.98);
+  }
+}
+
+@media (max-width: 640px) {
+  .compact-reference-addition-toast {
+    bottom: 16px;
+    right: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .compact-reference-addition-toast {
+    animation: none;
+  }
+}

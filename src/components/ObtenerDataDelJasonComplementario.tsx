@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import './ObtenerDataDelJasonOriginal.css'
 import CloneIcon from './CloneIcon'
 import CornerUpLeftIcon from './CornerUpLeftIcon'
@@ -65,6 +65,11 @@ type ObtenerDataDelJasonComplementarioProps = {
   onItemsSnapshotChange?: (items: JsonItemSnapshot[]) => void
   visibilityByLabel?: Record<string, boolean>
   onVisibilityToggle?: (label: string) => void
+  onValueModified?: (change: {
+    label: string
+    value: string
+    tone: DataItemTone
+  }) => void
 }
 
 type EditableValuesMap = Record<string, string>
@@ -692,6 +697,7 @@ function ObtenerDataDelJasonComplementario({
   onItemsSnapshotChange,
   visibilityByLabel = {},
   onVisibilityToggle,
+  onValueModified,
 }: ObtenerDataDelJasonComplementarioProps) {
   const itemsSignature = getItemsSignature(complementaryItems)
   const originalValues = buildInitialValues(source, complementaryItems)
@@ -714,6 +720,11 @@ function ObtenerDataDelJasonComplementario({
     sourceSignature,
     indices: {},
   }))
+  const onValueModifiedRef = useRef(onValueModified)
+
+  useEffect(() => {
+    onValueModifiedRef.current = onValueModified
+  }, [onValueModified])
   const editableValues =
     editableState.sourceSignature === sourceSignature
       ? editableState.values
@@ -731,6 +742,17 @@ function ObtenerDataDelJasonComplementario({
           complementaryItems,
           readStoredToneOverrides(complementaryItems),
         )
+  const itemNoticeMetadataSignature = JSON.stringify(
+    Object.fromEntries(
+      complementaryItems.map((item) => [
+        getItemKey(item),
+        {
+          label: item.label,
+          tone: toneAssignments[getToneKey(item)] ?? item.tone ?? 'gray',
+        },
+      ]),
+    ),
+  )
   const currentValuesByLabel = Object.fromEntries(
     complementaryItems.map((item) => {
       const itemKey = getItemKey(item)
@@ -827,6 +849,10 @@ function ObtenerDataDelJasonComplementario({
     }
 
     const originalValuesById = JSON.parse(sourceSignature) as EditableValuesMap
+    const itemNoticeMetadata = JSON.parse(itemNoticeMetadataSignature) as Record<
+      string,
+      { label: string; tone: DataItemTone }
+    >
 
     const controller: JsonItemController = {
       setValue(itemId, nextValue) {
@@ -834,6 +860,15 @@ function ObtenerDataDelJasonComplementario({
 
         if (typeof originalValue !== 'string') {
           return
+        }
+
+        if (nextValue !== originalValue) {
+          const itemMetadata = itemNoticeMetadata[itemId]
+          onValueModifiedRef.current?.({
+            label: itemMetadata?.label ?? 'DATO',
+            value: nextValue,
+            tone: itemMetadata?.tone ?? 'gray',
+          })
         }
 
         setEditableState((currentState) => {
@@ -881,15 +916,25 @@ function ObtenerDataDelJasonComplementario({
     onControllerReady(controller)
 
     return () => onControllerReady(null)
-  }, [onControllerReady, sourceSignature])
+  }, [itemNoticeMetadataSignature, onControllerReady, sourceSignature])
 
   function handleValueChange(
     itemKey: string,
+    itemLabel: string,
+    itemTone: DataItemTone,
     nextValue: string,
     originalValue: string,
   ) {
     if (!allowValueEditing) {
       return
+    }
+
+    if (nextValue !== originalValue) {
+      onValueModifiedRef.current?.({
+        label: itemLabel,
+        value: nextValue,
+        tone: itemTone,
+      })
     }
 
     setEditableState((currentState) => {
@@ -1167,6 +1212,8 @@ function ObtenerDataDelJasonComplementario({
                     onChange={(event) =>
                       handleValueChange(
                         itemKey,
+                        item.label,
+                        tone,
                         event.currentTarget.value,
                         originalValue,
                       )
