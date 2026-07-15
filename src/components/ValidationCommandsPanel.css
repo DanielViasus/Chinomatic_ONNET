@@ -234,6 +234,7 @@
 
 .validation-commands__copy-toast {
   --vendor-color: #8b5cf6;
+  --app-toast-accent: var(--vendor-color);
   position: fixed;
   z-index: 2000;
   bottom: 24px;
@@ -259,10 +260,6 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(15px);
   pointer-events: none;
-  animation:
-    validation-command-toast-in 360ms cubic-bezier(0.22, 1, 0.36, 1),
-    validation-command-toast-out 1500ms cubic-bezier(0.4, 0, 0.2, 1) 1.72s
-      forwards;
 }
 
 .validation-commands__copy-toast--nokia {
@@ -313,30 +310,6 @@
   line-height: 1.4;
   overflow-wrap: anywhere;
   white-space: pre-wrap;
-}
-
-@keyframes validation-command-toast-in {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 38px, 0) scale(0.97);
-  }
-
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-}
-
-@keyframes validation-command-toast-out {
-  from {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-
-  to {
-    opacity: 0;
-    transform: translate3d(0, calc(-50vh + 48px), 0) scale(0.98);
-  }
 }
 
 .validation-commands__list {
@@ -1076,10 +1049,6 @@
     box-shadow:
       inset 0 0 0 999px color-mix(in srgb, var(--vendor-color) 5%, transparent),
       0 0 0 1px color-mix(in srgb, var(--vendor-color) 28%, transparent);
-  }
-
-  .validation-commands__copy-toast {
-    animation: none;
   }
 }
 

@@ -1,5 +1,6 @@
 .extracted-data-modification-toast {
   --modification-toast-color: #f5a524;
+  --app-toast-accent: var(--modification-toast-color);
   position: fixed;
   z-index: 2200;
   bottom: 24px;
@@ -26,9 +27,6 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(15px);
   pointer-events: none;
-  animation:
-    extracted-data-toast-in 320ms cubic-bezier(0.22, 1, 0.36, 1),
-    extracted-data-toast-out 420ms ease 2.78s forwards;
 }
 
 .extracted-data-modification-toast__icon {
@@ -169,39 +167,9 @@
   overflow-wrap: anywhere;
 }
 
-@keyframes extracted-data-toast-in {
-  from {
-    opacity: 0;
-    transform: translate3d(18px, 18px, 0) scale(0.97);
-  }
-
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-}
-
-@keyframes extracted-data-toast-out {
-  from {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-
-  to {
-    opacity: 0;
-    transform: translate3d(12px, -14px, 0) scale(0.98);
-  }
-}
-
 @media (max-width: 640px) {
   .extracted-data-modification-toast {
     bottom: 16px;
     right: 16px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .extracted-data-modification-toast {
-    animation: none;
   }
 }

@@ -24,7 +24,7 @@ function ExtractedDataModificationToast({
 
   return createPortal(
     <aside
-      className="extracted-data-modification-toast"
+      className="app-toast extracted-data-modification-toast"
       role="status"
       aria-live="polite"
     >

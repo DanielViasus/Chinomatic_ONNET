@@ -8,6 +8,7 @@ import {
 } from 'react'
 import { flushSync } from 'react-dom'
 import './App.css'
+import './components/AppToast.css'
 import CompactReferenceBar from './components/CompactReferenceBar'
 import CompactReferenceAdditionToast, {
   type CompactReferenceAdditionNotice,
@@ -1133,7 +1134,6 @@ function App() {
     <main className="app-shell app-shell--minimal">
       <Selector_Tema
         theme={theme}
-        onSelectTheme={applyTheme}
         onToggleTheme={toggleTheme}
       />
 

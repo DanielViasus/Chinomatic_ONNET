@@ -22,7 +22,7 @@ function CommandLockToast({ notice }: CommandLockToastProps) {
 
   return createPortal(
     <aside
-      className={`command-lock-toast command-lock-toast--${notice.vendor} ${
+      className={`app-toast command-lock-toast command-lock-toast--${notice.vendor} ${
         notice.isLocked ? '' : 'command-lock-toast--unlocked'
       }`}
       role="status"

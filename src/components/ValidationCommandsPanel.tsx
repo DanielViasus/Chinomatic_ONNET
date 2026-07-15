@@ -429,14 +429,6 @@ function getAdjacentSectionCommandRow(
   return null
 }
 
-function focusCommandAfterSectionToggle(commandRow: HTMLElement | null) {
-  if (!commandRow) {
-    return
-  }
-
-  window.requestAnimationFrame(() => commandRow.focus())
-}
-
 function createPersonalCommandId(): string {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
     return crypto.randomUUID()
@@ -754,6 +746,17 @@ function CommandEditor({
     setEditingPropertyKey(propertyKey)
   }
 
+  function beginCommandEditing() {
+    setIsEditing(true)
+    window.requestAnimationFrame(() => {
+      inputRef.current?.focus()
+      inputRef.current?.setSelectionRange(
+        commandText.length,
+        commandText.length,
+      )
+    })
+  }
+
   function renderPropertyToken(
     propertyKey: string,
     property: AvailableCommandProperty,
@@ -866,16 +869,7 @@ function CommandEditor({
         isEditing ? 'validation-commands__editor-shell--editing' : ''
       }`}
       title={isEditing ? undefined : 'Doble clic para editar el comando'}
-      onDoubleClick={() => {
-        setIsEditing(true)
-        window.requestAnimationFrame(() => {
-          inputRef.current?.focus()
-          inputRef.current?.setSelectionRange(
-            commandText.length,
-            commandText.length,
-          )
-        })
-      }}
+      onDoubleClick={beginCommandEditing}
     >
       <code className="validation-commands__command-preview" aria-hidden="true">
         {isEditing
@@ -940,6 +934,11 @@ function CommandEditor({
         readOnly={!isEditing}
         tabIndex={isEditing ? 0 : -1}
         value={commandText}
+        onFocus={() => {
+          if (!isEditing) {
+            beginCommandEditing()
+          }
+        }}
         onChange={(event) => {
           onCommandChange(event.currentTarget.value)
           updatePropertyTrigger(
@@ -964,7 +963,12 @@ function CommandEditor({
 
           if (event.key === 'Enter' && filteredProperties.length === 0) {
             event.preventDefault()
+            const currentRow = event.currentTarget.closest<HTMLElement>(
+              '.validation-commands__item',
+            )
+
             event.currentTarget.blur()
+            window.requestAnimationFrame(() => currentRow?.focus())
             return
           }
 
@@ -1114,7 +1118,6 @@ function VendorTable({
   onPersonalCommandReset,
   onPersonalCommandDelete,
   isExpanded,
-  onToggleSection,
   lockedCommandKeys,
   onToggleCommandLock,
   onPropertyValueChange,
@@ -1143,7 +1146,6 @@ function VendorTable({
   onPersonalCommandReset: (commandId: string) => void
   onPersonalCommandDelete: (commandId: string) => void
   isExpanded: boolean
-  onToggleSection: () => void
   lockedCommandKeys: Set<string>
   onToggleCommandLock: (
     commandKey: string,
@@ -1271,7 +1273,7 @@ function VendorTable({
           currentToasts.filter((toast) => toast.id !== toastId),
         )
         copiedCommandToastTimersRef.current.delete(toastId)
-      }, 3350),
+      }, 3300),
     )
   }
 
@@ -1284,11 +1286,30 @@ function VendorTable({
     event: KeyboardEvent<HTMLLIElement>,
   ) {
     const eventTarget = event.target
+    const actionButton =
+      eventTarget instanceof HTMLElement
+        ? eventTarget.closest<HTMLButtonElement>(
+            '.validation-commands__item-action',
+          )
+        : null
 
     if (
       eventTarget instanceof HTMLElement &&
-      eventTarget.closest('input, textarea, button, [contenteditable="true"]')
+      (eventTarget.closest('input, textarea, [contenteditable="true"]') ||
+        (eventTarget.closest('button') && !actionButton))
     ) {
+      return
+    }
+
+    if (event.key === 'Enter') {
+      if (actionButton) {
+        return
+      }
+
+      event.preventDefault()
+      event.currentTarget
+        .querySelector<HTMLInputElement>('.validation-commands__command-input')
+        ?.focus()
       return
     }
 
@@ -1316,27 +1337,27 @@ function VendorTable({
 
     if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
       event.preventDefault()
-      const currentGroup = event.currentTarget.closest(
-        '.validation-commands__group',
-      )
+      const actionButtons = Array.from(
+        event.currentTarget.querySelectorAll<HTMLButtonElement>(
+          '.validation-commands__item-action:not(:disabled)',
+        ),
+      ).filter((button) => button.offsetParent !== null)
+      const currentActionIndex = actionButton
+        ? actionButtons.indexOf(actionButton)
+        : -1
+      const nextTarget =
+        event.key === 'ArrowRight'
+          ? actionButtons[currentActionIndex + 1]
+          : currentActionIndex <= 0
+            ? event.currentTarget
+            : actionButtons[currentActionIndex - 1]
 
-      if (isExpanded && currentGroup) {
-        const currentRowIsLocked =
-          event.currentTarget.dataset.commandLocked === 'true'
-        const firstLockedRow = currentGroup.querySelector<HTMLElement>(
-          '[data-command-navigation="true"][data-command-locked="true"]',
-        )
-        const nextCommandRow =
-          firstLockedRow ??
-          getAdjacentSectionCommandRow(currentGroup, 1) ??
-          getAdjacentSectionCommandRow(currentGroup, -1)
-
-        if (!currentRowIsLocked) {
-          focusCommandAfterSectionToggle(nextCommandRow)
-        }
+      if (nextTarget && nextTarget !== eventTarget) {
+        nextTarget.focus()
+        playNavigationSound(event.key === 'ArrowLeft' ? -1 : 1)
       }
 
-      onToggleSection()
+      return
     }
   }
 
@@ -1366,7 +1387,7 @@ function VendorTable({
       {copiedCommandToasts.map((toast) =>
         createPortal(
             <aside
-              className={`validation-commands__copy-toast validation-commands__copy-toast--${vendor}`}
+              className={`app-toast validation-commands__copy-toast validation-commands__copy-toast--${vendor}`}
               role="status"
               aria-live="polite"
               style={{ zIndex: 2000 + toast.id }}
@@ -2058,7 +2079,6 @@ function ValidationCommandsPanel({
           })
         }}
         isExpanded={isExpanded}
-        onToggleSection={() => toggleDisclosure(commandSection)}
         lockedCommandKeys={lockedCommandKeys}
         onToggleCommandLock={toggleCommandLock}
         onPropertyValueChange={onPropertyValueChange}
@@ -2133,24 +2153,6 @@ function ValidationCommandsPanel({
 
                 nextCommandRow?.focus()
                 return
-              }
-
-              if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
-                event.preventDefault()
-
-                if (isExpanded && currentGroup) {
-                  const firstLockedRow = currentGroup.querySelector<HTMLElement>(
-                    '[data-command-navigation="true"][data-command-locked="true"]',
-                  )
-                  const nextCommandRow =
-                    firstLockedRow ??
-                    getAdjacentSectionCommandRow(currentGroup, 1) ??
-                    getAdjacentSectionCommandRow(currentGroup, -1)
-
-                  focusCommandAfterSectionToggle(nextCommandRow)
-                }
-
-                toggleDisclosure(section)
               }
             }}
           >

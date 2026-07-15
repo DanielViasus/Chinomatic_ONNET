@@ -24,7 +24,7 @@ function CompactReferenceAdditionToast({
 
   return createPortal(
     <aside
-      className={`compact-reference-addition-toast ${
+      className={`app-toast compact-reference-addition-toast ${
         notice.isVisible
           ? ''
           : 'compact-reference-addition-toast--hidden'
