@@ -1,0 +1,46 @@
+[
+  {
+    "excelRow": 56,
+    "huawei": {
+      "type": "command",
+      "template": "btv",
+      "sourceFormula": null
+    },
+    "nokia": {
+      "type": "command",
+      "template": "configure equipment ont interface 1/1/{slot}/{port}/{onuid} admin-state down",
+      "sourceFormula": "=\"configure equipment ont interface 1/1/\"&A3&\"/\"&A4&\"/\"&A5&\" admin-state down\""
+    }
+  },
+  {
+    "excelRow": 57,
+    "huawei": {
+      "type": "command",
+      "template": "7530",
+      "sourceFormula": null
+    },
+    "nokia": {
+      "type": "command",
+      "template": "configure equipment ont no interface 1/1/{slot}/{port}/{onuid}",
+      "sourceFormula": "=\"configure equipment ont no interface 1/1/\"&A3&\"/\"&A4&\"/\"&A5&\"\""
+    }
+  },
+  {
+    "excelRow": 58,
+    "huawei": {
+      "type": "command",
+      "template": "Y",
+      "sourceFormula": null
+    },
+    "nokia": null
+  },
+  {
+    "excelRow": 59,
+    "huawei": {
+      "type": "command",
+      "template": "quit",
+      "sourceFormula": null
+    },
+    "nokia": null
+  }
+]

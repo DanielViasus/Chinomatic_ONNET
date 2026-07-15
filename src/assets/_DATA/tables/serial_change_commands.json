@@ -1,0 +1,41 @@
+[
+  {
+    "excelRow": 45,
+    "huawei": {
+      "type": "command",
+      "template": "config",
+      "sourceFormula": null
+    },
+    "nokia": {
+      "type": "command",
+      "template": "configure equipment ont interface 1/1/{slot}/{port}/{onuid} admin-state down",
+      "sourceFormula": "=\"configure equipment ont interface 1/1/\"&A3&\"/\"&A4&\"/\"&A5&\" admin-state down\""
+    }
+  },
+  {
+    "excelRow": 46,
+    "huawei": {
+      "type": "command",
+      "template": "interface gpon 0/{slot}",
+      "sourceFormula": "=\"interface gpon 0/\"&A3&\"\""
+    },
+    "nokia": {
+      "type": "command",
+      "template": "configure equipment ont interface 1/1/{slot}/{port}/{onuid} sernum {password}",
+      "sourceFormula": "=\"configure equipment ont interface 1/1/\"&A3&\"/\"&A4&\"/\"&A5&\" sernum \"&LEFT(A6,4)&\":\"&RIGHT(A6,8)&\"\""
+    }
+  },
+  {
+    "excelRow": 47,
+    "huawei": {
+      "type": "command",
+      "template": "ont modify {port} {onuid} sn {password}",
+      "sourceFormula": "=\"ont modify \"&A4&\" \"&A5&\" sn \"&A6&\"\""
+    },
+    "nokia": {
+      "type": "command",
+      "template": "configure equipment ont interface 1/1/{slot}/{port}/{onuid} admin-state up",
+      "sourceFormula": "=\"configure equipment ont interface 1/1/\"&A3&\"/\"&A4&\"/\"&A5&\" admin-state up\""
+    }
+  }
+]

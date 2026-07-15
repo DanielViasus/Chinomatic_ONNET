@@ -1,0 +1,107 @@
+[
+  {
+    "excelRow": 34,
+    "huawei": {
+      "type": "command",
+      "template": "display Vlan {networkvlan} | include {innervlan}",
+      "sourceFormula": "=\"display Vlan \"&A7&\" | include \"&A8"
+    },
+    "nokia": {
+      "type": "command",
+      "template": "info configure bridge flat | match exact:stacked:{networkvlan}:{innervlan}",
+      "sourceFormula": "=\"info configure bridge flat | match exact:stacked:\"&A7&\":\"&A8"
+    }
+  },
+  {
+    "excelRow": 35,
+    "huawei": {
+      "type": "command",
+      "template": "display mac-address vlan 3104",
+      "sourceFormula": null
+    },
+    "nokia": {
+      "type": "command",
+      "template": "info configure vlan id stacked:{networkvlan}:{innervlan}",
+      "sourceFormula": "=\"info configure vlan id stacked:\"&A7&\":\"&A8&\"\""
+    }
+  },
+  {
+    "excelRow": 36,
+    "huawei": {
+      "type": "command",
+      "template": "display vlan all",
+      "sourceFormula": null
+    },
+    "nokia": {
+      "type": "command",
+      "template": "info configure service | match exact:\"custom\"",
+      "sourceFormula": null
+    }
+  },
+  {
+    "excelRow": 37,
+    "huawei": {
+      "type": "command",
+      "template": "display port vlan 0/{slot}/{port}",
+      "sourceFormula": "=\"display port vlan 0/\"&A3&\"/\"&A4"
+    },
+    "nokia": null
+  },
+  {
+    "excelRow": 38,
+    "huawei": {
+      "type": "command",
+      "template": "display ont autofind all",
+      "sourceFormula": null
+    },
+    "nokia": {
+      "type": "command",
+      "template": "show pon unprovision-onu",
+      "sourceFormula": null
+    }
+  },
+  {
+    "excelRow": 39,
+    "huawei": {
+      "type": "command",
+      "template": "display ont info by-sn {password}",
+      "sourceFormula": "=\"display ont info by-sn \"&A6"
+    },
+    "nokia": {
+      "type": "command",
+      "template": "show service service-using",
+      "sourceFormula": null
+    }
+  },
+  {
+    "excelRow": 40,
+    "huawei": {
+      "type": "command",
+      "template": "display ont info by-password {password}",
+      "sourceFormula": "=\"display ont info by-password \"&A6"
+    },
+    "nokia": null
+  },
+  {
+    "excelRow": 41,
+    "huawei": {
+      "type": "command",
+      "template": "display ont info summary 0/{slot}/{port}",
+      "sourceFormula": "=\"display ont info summary 0/\"&A3&\"/\"&A4&\" \""
+    },
+    "nokia": {
+      "type": "command",
+      "template": "show equipment ont operational-data 1/1/{slot}/{port}/{onuid}",
+      "sourceFormula": "=\"show equipment ont operational-data 1/1/\"&A3&\"/\"&A4&\"/\"&A5&\"\""
+    }
+  },
+  {
+    "excelRow": 42,
+    "huawei": null,
+    "nokia": {
+      "type": "command",
+      "template": "show qos profile-usage shaper",
+      "sourceFormula": null
+    }
+  }
+]

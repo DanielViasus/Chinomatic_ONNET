@@ -1,8 +1,23 @@
-import { useEffect, useRef, useState } from 'react'
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ClipboardEvent,
+  type KeyboardEvent,
+} from 'react'
+import { createPortal } from 'react-dom'
 import validationRows from '../assets/_DATA/tables/validation_commands.json'
+import searchRows from '../assets/_DATA/tables/search_commands.json'
+import serialChangeRows from '../assets/_DATA/tables/serial_change_commands.json'
+import passwordChangeRows from '../assets/_DATA/tables/password_change_commands.json'
+import profileChangeRows from '../assets/_DATA/tables/profile_change_commands.json'
+import deleteIgmpRows from '../assets/_DATA/tables/delete_igmp_commands.json'
+import deleteVlanServiceRows from '../assets/_DATA/tables/delete_vlan_service_commands.json'
 import { oltReferenceByIp } from '../assets/_DATA/oltReferenceLookup'
 import CloneIcon from './CloneIcon'
 import CornerUpLeftIcon from './CornerUpLeftIcon'
+import LockIcon from './LockIcon'
+import LockSlashIcon from './LockSlashIcon'
 import PlusIcon from './PlusIcon'
 import PlusLargeIcon from './PlusLargeIcon'
 import TrashIcon from './TrashIcon'
@@ -10,9 +25,27 @@ import type { DataItemTone } from './jsonToneShared'
 import './ValidationCommandsPanel.css'
 
 type Vendor = 'huawei' | 'nokia'
-type CommandValueLabel = 'SLOT' | 'PORT' | 'ONUID'
+type CommandSection =
+  | 'validation'
+  | 'search'
+  | 'serial-change'
+  | 'password-change'
+  | 'profile-change'
+  | 'delete-igmp'
+  | 'delete-vlan-service'
+type CommandValueLabel =
+  | 'SLOT'
+  | 'PORT'
+  | 'ONUID'
+  | 'PASSWORD'
+  | 'NETWORKVLAN'
+  | 'INNERVLAN'
+  | 'PROFILEDATA'
 type CommandValues = Record<Lowercase<CommandValueLabel>, string>
 type CommandTones = Record<CommandValueLabel, DataItemTone>
+type CommandValueTransforms = Partial<
+  Record<CommandValueLabel, (value: string) => string>
+>
 type AvailableCommandProperty = {
   label: string
   value: string
@@ -76,20 +109,156 @@ type PersonalCommand = {
   id: string
   scope: string
   vendor: Vendor
+  section: CommandSection
+  title: string
   baseline: string | null
   value: string
 }
 
-const rows = validationRows as ValidationRow[]
+type CopiedCommandToast = {
+  id: number
+  value: string
+}
+
+const validationCommandRows = validationRows as ValidationRow[]
+const searchCommandRows = searchRows as ValidationRow[]
+const serialChangeCommandRows = serialChangeRows as ValidationRow[]
+const passwordChangeCommandRows = passwordChangeRows as ValidationRow[]
+const profileChangeCommandRows = profileChangeRows as ValidationRow[]
+const deleteIgmpCommandRows = deleteIgmpRows as ValidationRow[]
+const deleteVlanServiceCommandRows = deleteVlanServiceRows as ValidationRow[]
 const commandOverridesStorageKey = 'chinomatic-validation-command-overrides-v1'
 const personalCommandsStorageKey = 'chinomatic-personal-validation-commands-v1'
+const lockedCommandsStorageKey = 'chinomatic-locked-validation-commands-v1'
 const validationCommandsExpandedStorageKey =
   'chinomatic-validation-commands-expanded-v1'
+const searchCommandsExpandedStorageKey = 'chinomatic-search-commands-expanded-v1'
+const serialChangeCommandsExpandedStorageKey =
+  'chinomatic-serial-change-commands-expanded-v1'
+const passwordChangeCommandsExpandedStorageKey =
+  'chinomatic-password-change-commands-expanded-v1'
+const profileChangeCommandsExpandedStorageKey =
+  'chinomatic-profile-change-commands-expanded-v1'
+const deleteIgmpCommandsExpandedStorageKey =
+  'chinomatic-delete-igmp-commands-expanded-v1'
+const deleteVlanServiceCommandsExpandedStorageKey =
+  'chinomatic-delete-vlan-service-commands-expanded-v1'
+let nextCopiedCommandToastId = 0
 
 const defaultCommandTones: CommandTones = {
   SLOT: 'red',
   PORT: 'green',
   ONUID: 'blue',
+  PASSWORD: 'yellow',
+  NETWORKVLAN: 'orange',
+  INNERVLAN: 'pink',
+  PROFILEDATA: 'violet',
+}
+
+const commandTitles: Record<Vendor, Record<number, string>> = {
+  huawei: {
+    19: 'Habilitar acceso',
+    20: 'Configuración',
+    22: 'Tarjeta y puerto',
+    23: 'Configuración ONT',
+    24: 'Interfaz GPON',
+    25: 'Información ONT',
+    26: 'Potencia óptica',
+    27: 'Puertos de servicio',
+    28: 'Servicio IPTV',
+    29: 'VLAN IPTV',
+    30: 'Dirección MAC',
+  },
+  nokia: {
+    19: 'Inhibir alarmas',
+    21: 'Ranuras del equipo',
+    22: 'Estado ONT',
+    23: 'Configuración ONT',
+    27: 'Puerto bridge',
+    28: 'Canal IGMP',
+    29: 'Detalle interfaz',
+    30: 'Configuración QoS',
+    31: 'Tabla MAC VLAN',
+  },
+}
+
+const searchCommandTitles: Record<Vendor, Record<number, string>> = {
+  huawei: {
+    34: 'Buscar VLAN',
+    35: 'MAC por VLAN',
+    36: 'Listar VLAN',
+    37: 'VLAN del puerto',
+    38: 'ONT sin registrar',
+    39: 'Buscar por serial',
+    40: 'Buscar por password',
+    41: 'Resumen ONT',
+  },
+  nokia: {
+    34: 'Buscar bridge',
+    35: 'Buscar VLAN',
+    36: 'Buscar servicio',
+    38: 'ONT sin registrar',
+    39: 'Servicios activos',
+    41: 'Datos operativos ONT',
+    42: 'Uso perfiles QoS',
+  },
+}
+
+const serialChangeCommandTitles: Record<Vendor, Record<number, string>> = {
+  huawei: {
+    45: 'Configuración',
+    46: 'Interfaz GPON',
+    47: 'Modificar serial',
+  },
+  nokia: {
+    45: 'Desactivar ONT',
+    46: 'Cambiar serial',
+    47: 'Activar ONT',
+  },
+}
+
+const passwordChangeCommandTitles: Record<Vendor, Record<number, string>> = {
+  huawei: {},
+  nokia: {
+    49: 'Desactivar ONT',
+    50: 'Cambiar password',
+    51: 'Activar ONT',
+  },
+}
+
+const profileChangeCommandTitles: Record<Vendor, Record<number, string>> = {
+  huawei: {},
+  nokia: {
+    53: 'Cambiar perfil',
+    54: 'Confirmar cambio',
+  },
+}
+
+const deleteIgmpCommandTitles: Record<Vendor, Record<number, string>> = {
+  huawei: {
+    56: 'Modo BTV',
+    57: 'Servicio IGMP',
+    58: 'Confirmar',
+    59: 'Salir',
+  },
+  nokia: {
+    56: 'Desactivar ONT',
+    57: 'Eliminar ONT',
+  },
+}
+
+const deleteVlanServiceCommandTitles: Record<
+  Vendor,
+  Record<number, string>
+> = {
+  huawei: {
+    61: 'Servicio VLAN 7526',
+    62: 'Servicio VLAN 7527',
+    63: 'Servicio VLAN 7530',
+    64: 'Interfaz GPON',
+    65: 'Eliminar ONT',
+  },
+  nokia: {},
 }
 
 function readStoredCommandOverrides(): CommandOverrides {
@@ -130,37 +299,79 @@ function readStoredPersonalCommands(): PersonalCommand[] {
       return []
     }
 
-    return parsedValue.filter((command): command is PersonalCommand => {
+    return parsedValue.flatMap((command) => {
       if (!command || typeof command !== 'object') {
-        return false
+        return []
       }
 
       const candidate = command as Partial<PersonalCommand>
 
-      return (
-        typeof candidate.id === 'string' &&
-        typeof candidate.scope === 'string' &&
-        (candidate.vendor === 'nokia' || candidate.vendor === 'huawei') &&
-        (candidate.baseline === null ||
-          typeof candidate.baseline === 'string') &&
-        typeof candidate.value === 'string'
-      )
+      if (
+        typeof candidate.id !== 'string' ||
+        typeof candidate.scope !== 'string' ||
+        (candidate.vendor !== 'nokia' && candidate.vendor !== 'huawei') ||
+        (candidate.baseline !== null &&
+          typeof candidate.baseline !== 'string') ||
+        typeof candidate.value !== 'string'
+      ) {
+        return []
+      }
+
+      return [
+        {
+          id: candidate.id,
+          scope: candidate.scope,
+          vendor: candidate.vendor,
+          section:
+            candidate.section === 'search' ||
+            candidate.section === 'serial-change' ||
+            candidate.section === 'password-change' ||
+            candidate.section === 'profile-change' ||
+            candidate.section === 'delete-igmp' ||
+            candidate.section === 'delete-vlan-service'
+              ? candidate.section
+              : 'validation',
+          title:
+            typeof candidate.title === 'string'
+              ? candidate.title.slice(0, 20)
+              : '',
+          baseline: candidate.baseline,
+          value: candidate.value,
+        },
+      ]
     })
   } catch {
     return []
   }
 }
 
-function readStoredValidationCommandsExpanded(): boolean {
+function readStoredCommandsExpanded(storageKey: string): boolean {
   if (typeof window === 'undefined') {
     return true
   }
 
-  const storedValue = window.localStorage.getItem(
-    validationCommandsExpandedStorageKey,
-  )
+  const storedValue = window.localStorage.getItem(storageKey)
 
   return storedValue === null ? true : storedValue === 'true'
+}
+
+function readStoredLockedCommands(): Set<string> {
+  if (typeof window === 'undefined') {
+    return new Set()
+  }
+
+  try {
+    const storedValue = window.localStorage.getItem(lockedCommandsStorageKey)
+    const parsedValue = storedValue ? JSON.parse(storedValue) : []
+
+    return new Set(
+      Array.isArray(parsedValue)
+        ? parsedValue.filter((value): value is string => typeof value === 'string')
+        : [],
+    )
+  } catch {
+    return new Set()
+  }
 }
 
 function createPersonalCommandId(): string {
@@ -169,6 +380,14 @@ function createPersonalCommandId(): string {
   }
 
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`
+}
+
+function formatNokiaSerial(value: string): string {
+  if (!value) {
+    return value
+  }
+
+  return `${value.slice(0, 4)}:${value.slice(-8)}`
 }
 
 function findCommandPropertyTrigger(
@@ -231,6 +450,7 @@ function buildCustomCommandParts(
 function resolveCustomCommandText(
   commandText: string,
   availableProperties: AvailableCommandProperty[],
+  valueTransforms: CommandValueTransforms = {},
 ): string {
   const propertiesByLabel = new Map(
     availableProperties.map((property) => [
@@ -241,14 +461,24 @@ function resolveCustomCommandText(
 
   return commandText.replace(
     /::ADD\(([^)]+)\)/gi,
-    (marker, propertyLabel: string) =>
-      propertiesByLabel.get(propertyLabel.toUpperCase())?.value ?? marker,
+    (marker, propertyLabel: string) => {
+      const normalizedLabel = propertyLabel.toUpperCase()
+      const property = propertiesByLabel.get(normalizedLabel)
+
+      if (!property) {
+        return marker
+      }
+
+      const valueTransform =
+        valueTransforms[normalizedLabel as CommandValueLabel]
+      return valueTransform?.(property.value) ?? property.value
+    },
   )
 }
 
 function commandTemplateToEditorText(template: string): string {
   return template.replace(
-    /\{(slot|port|onuid)\}/g,
+    /\{(slot|port|onuid|password|networkvlan|innervlan|profiledata)\}/g,
     (_, valueKey: keyof CommandValues) => `::ADD(${valueKey.toUpperCase()})`,
   )
 }
@@ -267,16 +497,28 @@ function getCommandTemplate(
   return command.template
 }
 
-function compileCommandText(template: string, values: CommandValues): string {
-  return template.replace(/\{(slot|port|onuid)\}/g, (_, valueKey: keyof CommandValues) =>
-    values[valueKey],
+function compileCommandText(
+  template: string,
+  values: CommandValues,
+  valueTransforms: CommandValueTransforms = {},
+): string {
+  return template.replace(
+    /\{(slot|port|onuid|password|networkvlan|innervlan|profiledata)\}/g,
+    (_, valueKey: keyof CommandValues) => {
+      const label = valueKey.toUpperCase() as CommandValueLabel
+      return valueTransforms[label]?.(values[valueKey]) ?? values[valueKey]
+    },
   )
 }
 
 function getCommandLabels(template: string): CommandValueLabel[] {
   return Array.from(
     new Set(
-      Array.from(template.matchAll(/\{(slot|port|onuid)\}/g)).map(
+      Array.from(
+        template.matchAll(
+          /\{(slot|port|onuid|password|networkvlan|innervlan|profiledata)\}/g,
+        ),
+      ).map(
         (match) => match[1].toUpperCase() as CommandValueLabel,
       ),
     ),
@@ -314,6 +556,7 @@ function CommandEditor({
   initiallyEditing = false,
   onEditingComplete,
   onPropertyValueChange,
+  valueTransforms = {},
 }: {
   commandText: string
   template: string
@@ -333,6 +576,7 @@ function CommandEditor({
     itemId: string,
     nextValue: string,
   ) => void
+  valueTransforms?: CommandValueTransforms
 }) {
   const inputRef = useRef<HTMLInputElement | null>(null)
   const activePropertyRef = useRef<HTMLButtonElement | null>(null)
@@ -346,7 +590,9 @@ function CommandEditor({
   const [propertyTrigger, setPropertyTrigger] =
     useState<CommandPropertyTrigger | null>(null)
   const [activePropertyIndex, setActivePropertyIndex] = useState(0)
-  const parts = template.split(/(\{(?:slot|port|onuid)\})/g)
+  const parts = template.split(
+    /(\{(?:slot|port|onuid|password|networkvlan|innervlan|profiledata)\})/g,
+  )
   const semanticParts = buildCustomCommandParts(
     commandText,
     availableProperties,
@@ -538,11 +784,15 @@ function CommandEditor({
       }
 
       const { marker, property } = part
+      const propertyValueTransform =
+        valueTransforms[property.label.toUpperCase() as CommandValueLabel]
 
       return renderPropertyToken(
         `custom-${property.label}-${part.index}`,
         property,
-        showMarkers ? marker : property.value,
+        showMarkers
+          ? marker
+          : propertyValueTransform?.(property.value) ?? property.value,
       )
     })
   }
@@ -570,15 +820,17 @@ function CommandEditor({
           : isCustomized
             ? renderSemanticCommand(false)
           : parts.map((part, index) => {
-              const valueKey = part.match(/^\{(slot|port|onuid)\}$/)?.[1] as
-                | keyof CommandValues
-                | undefined
+              const valueKey = part.match(
+                /^\{(slot|port|onuid|password|networkvlan|innervlan|profiledata)\}$/,
+              )?.[1] as keyof CommandValues | undefined
 
               if (!valueKey) {
                 return part
               }
 
               const label = valueKey.toUpperCase() as CommandValueLabel
+              const displayCommandValue =
+                valueTransforms[label]?.(values[valueKey]) ?? values[valueKey]
               const property = availableProperties.find(
                 (availableProperty) => availableProperty.label === label,
               )
@@ -587,7 +839,7 @@ function CommandEditor({
                 return renderPropertyToken(
                   `${valueKey}-${index}`,
                   { ...property, tone: tones[label] },
-                  values[valueKey],
+                  displayCommandValue,
                 )
               }
 
@@ -603,11 +855,11 @@ function CommandEditor({
                       ? 'validation-commands__value-token--dirty'
                       : ''
                   }`}
-                  title={`${label}: ${values[valueKey]}`}
+                  title={`${label}: ${displayCommandValue}`}
                   onMouseEnter={() => onHighlightedLabelChange?.(label)}
                   onMouseLeave={() => onHighlightedLabelChange?.(null)}
                 >
-                  {values[valueKey]}
+                  {displayCommandValue}
                 </span>
               )
             })}
@@ -689,9 +941,22 @@ function CommandEditor({
             )
           }
         }}
-        onBlur={() => {
+        onBlur={(event) => {
           setPropertyTrigger(null)
           setIsEditing(false)
+
+          const nextFocusedElement = event.relatedTarget
+          const currentRow = event.currentTarget.closest(
+            '.validation-commands__item',
+          )
+
+          if (
+            nextFocusedElement instanceof HTMLElement &&
+            currentRow?.contains(nextFocusedElement)
+          ) {
+            return
+          }
+
           onEditingComplete?.(commandText)
         }}
         onScroll={(event) => {
@@ -764,7 +1029,9 @@ function CommandEditor({
 
 function VendorTable({
   vendor,
-  isDetected,
+  commandSection,
+  commandRows,
+  commandTitleMap,
   values,
   tones,
   highlightedLabel,
@@ -778,15 +1045,21 @@ function VendorTable({
   availableProperties,
   personalCommands,
   onPersonalCommandAdd,
+  onPersonalCommandTitleChange,
   onPersonalCommandChange,
   onPersonalCommandComplete,
   onPersonalCommandReset,
   onPersonalCommandDelete,
+  isExpanded,
+  lockedCommandKeys,
+  onToggleCommandLock,
   onPropertyValueChange,
   onPropertyValueReset,
 }: {
   vendor: Vendor
-  isDetected: boolean
+  commandSection: CommandSection
+  commandRows: ValidationRow[]
+  commandTitleMap: Record<Vendor, Record<number, string>>
   values: CommandValues
   tones: CommandTones
   highlightedLabel?: string | null
@@ -799,11 +1072,15 @@ function VendorTable({
   onCommandReset: (commandKey: string) => void
   availableProperties: AvailableCommandProperty[]
   personalCommands: PersonalCommand[]
-  onPersonalCommandAdd: (vendor: Vendor) => void
+  onPersonalCommandAdd: (vendor: Vendor, section: CommandSection) => void
+  onPersonalCommandTitleChange: (commandId: string, title: string) => void
   onPersonalCommandChange: (commandId: string, value: string) => void
   onPersonalCommandComplete: (commandId: string, value: string) => void
   onPersonalCommandReset: (commandId: string) => void
   onPersonalCommandDelete: (commandId: string) => void
+  isExpanded: boolean
+  lockedCommandKeys: Set<string>
+  onToggleCommandLock: (commandKey: string) => void
   onPropertyValueChange?: (
     source: 'primary' | 'secondary',
     itemId: string,
@@ -816,37 +1093,227 @@ function VendorTable({
   ) => void
 }) {
   const label = vendor === 'huawei' ? 'Huawei' : 'Nokia'
-  const commands = rows.flatMap((row) => {
+  const [copiedCommandKey, setCopiedCommandKey] = useState<string | null>(null)
+  const [copiedCommandToasts, setCopiedCommandToasts] = useState<
+    CopiedCommandToast[]
+  >([])
+  const copiedCommandToastTimersRef = useRef(
+    new Map<number, number>(),
+  )
+  const copiedCommandTimerRef = useRef<number | null>(null)
+  const navigationAudioContextRef = useRef<AudioContext | null>(null)
+  const commands = commandRows.flatMap((row) => {
     const command = row[vendor]
     return command ? [{ command, excelRow: row.excelRow }] : []
   })
+
+  useEffect(
+    () => () => {
+      if (copiedCommandTimerRef.current !== null) {
+        window.clearTimeout(copiedCommandTimerRef.current)
+      }
+
+      for (const timer of copiedCommandToastTimersRef.current.values()) {
+        window.clearTimeout(timer)
+      }
+
+      copiedCommandToastTimersRef.current.clear()
+
+      void navigationAudioContextRef.current?.close()
+    },
+    [],
+  )
+
+  function playNavigationSound(direction: -1 | 1) {
+    const audioContext =
+      navigationAudioContextRef.current ?? new window.AudioContext()
+    navigationAudioContextRef.current = audioContext
+
+    if (audioContext.state === 'suspended') {
+      void audioContext.resume()
+    }
+
+    const now = audioContext.currentTime
+    const oscillator = audioContext.createOscillator()
+    const gain = audioContext.createGain()
+
+    oscillator.type = 'sine'
+    oscillator.frequency.setValueAtTime(direction === 1 ? 520 : 460, now)
+    gain.gain.setValueAtTime(0.0001, now)
+    gain.gain.exponentialRampToValueAtTime(0.022, now + 0.006)
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.05)
+    oscillator.connect(gain)
+    gain.connect(audioContext.destination)
+    oscillator.start(now)
+    oscillator.stop(now + 0.055)
+  }
+
+  function playCopiedFeedbackSound() {
+    const audioContext =
+      navigationAudioContextRef.current ?? new window.AudioContext()
+    navigationAudioContextRef.current = audioContext
+
+    if (audioContext.state === 'suspended') {
+      void audioContext.resume()
+    }
+
+    const now = audioContext.currentTime
+    const gain = audioContext.createGain()
+
+    gain.gain.setValueAtTime(0.0001, now)
+    gain.gain.exponentialRampToValueAtTime(0.032, now + 0.012)
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.24)
+    gain.connect(audioContext.destination)
+
+    for (const [index, frequency] of [620, 820].entries()) {
+      const oscillator = audioContext.createOscillator()
+      const startTime = now + index * 0.075
+
+      oscillator.type = 'sine'
+      oscillator.frequency.setValueAtTime(frequency, startTime)
+      oscillator.connect(gain)
+      oscillator.start(startTime)
+      oscillator.stop(startTime + 0.15)
+    }
+  }
+
+  function showCopiedFeedback(commandKey: string, commandValue: string) {
+    const toastId = ++nextCopiedCommandToastId
+
+    playCopiedFeedbackSound()
+    setCopiedCommandKey(commandKey)
+    setCopiedCommandToasts((currentToasts) => [
+      ...currentToasts,
+      { id: toastId, value: commandValue },
+    ])
+
+    if (copiedCommandTimerRef.current !== null) {
+      window.clearTimeout(copiedCommandTimerRef.current)
+    }
+
+    copiedCommandTimerRef.current = window.setTimeout(() => {
+      setCopiedCommandKey(null)
+      copiedCommandTimerRef.current = null
+    }, 2600)
+
+    copiedCommandToastTimersRef.current.set(
+      toastId,
+      window.setTimeout(() => {
+        setCopiedCommandToasts((currentToasts) =>
+          currentToasts.filter((toast) => toast.id !== toastId),
+        )
+        copiedCommandToastTimersRef.current.delete(toastId)
+      }, 3350),
+    )
+  }
+
+  function copyCommand(commandKey: string, commandValue: string) {
+    showCopiedFeedback(commandKey, commandValue)
+    void navigator.clipboard.writeText(commandValue)
+  }
+
+  function handleCommandNavigation(
+    event: KeyboardEvent<HTMLLIElement>,
+  ) {
+    const eventTarget = event.target
+
+    if (
+      eventTarget instanceof HTMLElement &&
+      eventTarget.closest('input, textarea, button, [contenteditable="true"]')
+    ) {
+      return
+    }
+
+    if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+      event.preventDefault()
+      const commandsPanel = event.currentTarget.closest(
+        '.validation-commands',
+      )
+      const commandRows = Array.from(
+        commandsPanel?.querySelectorAll<HTMLElement>(
+          '[data-command-navigation="true"]',
+        ) ?? [],
+      ).filter(
+        (commandRow) =>
+          commandRow.closest('.validation-commands__content')?.getAttribute(
+            'aria-hidden',
+          ) !== 'true',
+      )
+      const currentIndex = commandRows.indexOf(event.currentTarget)
+      const direction = event.key === 'ArrowUp' ? -1 : 1
+      const nextIndex = Math.min(
+        Math.max(currentIndex + direction, 0),
+        commandRows.length - 1,
+      )
+
+      if (nextIndex !== currentIndex) {
+        commandRows[nextIndex]?.focus()
+        playNavigationSound(direction)
+      }
+    }
+  }
+
+  function handleCommandCopy(
+    event: ClipboardEvent<HTMLLIElement>,
+    commandKey: string,
+    resolvedCommand: string,
+  ) {
+    const eventTarget = event.target
+
+    if (
+      eventTarget instanceof HTMLElement &&
+      eventTarget.closest('input, textarea, [contenteditable="true"]')
+    ) {
+      return
+    }
+
+    event.preventDefault()
+    event.clipboardData.setData('text/plain', resolvedCommand)
+    showCopiedFeedback(commandKey, resolvedCommand)
+  }
 
   return (
     <section
       className={`validation-commands__vendor validation-commands__vendor--${vendor}`}
     >
-      <div className="validation-commands__vendor-header">
-        <div>
-          <span className="validation-commands__vendor-dot" aria-hidden="true" />
-          <h4>{label}</h4>
-        </div>
-
-        {isDetected ? (
-          <span className="validation-commands__active-badge">Detectado</span>
-        ) : (
-          <span className="validation-commands__alternate-badge">
-            Vista alterna
-          </span>
-        )}
-      </div>
+      {copiedCommandToasts.map((toast) =>
+        createPortal(
+            <aside
+              className={`validation-commands__copy-toast validation-commands__copy-toast--${vendor}`}
+              role="status"
+              aria-live="polite"
+              style={{ zIndex: 2000 + toast.id }}
+            >
+              <strong>Se copió propiedad</strong>
+              <p>{toast.value}</p>
+            </aside>,
+            document.body,
+            String(toast.id),
+          ),
+      )}
 
       <ol className="validation-commands__list">
-        {commands.map(({ command, excelRow }) => {
+        {commands.filter(({ excelRow }) => {
+          const commandKey = `${commandScope}:${commandSection}:${vendor}:${excelRow}`
+          return isExpanded || lockedCommandKeys.has(commandKey)
+        }).map(({ command, excelRow }) => {
+          const commandTitle = commandTitleMap[vendor][excelRow] ?? 'Comando'
           const template = getCommandTemplate(command, excelRow, vendor, values)
+          const valueTransforms: CommandValueTransforms =
+            commandSection === 'serial-change' &&
+            vendor === 'nokia' &&
+            excelRow === 46
+              ? { PASSWORD: formatNokiaSerial }
+              : {}
           const commandLabels = getCommandLabels(template)
-          const commandKey = `${commandScope}:${vendor}:${excelRow}`
+          const commandKey = `${commandScope}:${commandSection}:${vendor}:${excelRow}`
+          const isLocked = lockedCommandKeys.has(commandKey)
           const isCustomized = Object.hasOwn(commandOverrides, commandKey)
-          const compiledCommand = compileCommandText(template, values)
+          const compiledCommand = compileCommandText(
+            template,
+            values,
+            valueTransforms,
+          )
           const editableCommand = isCustomized
             ? commandOverrides[commandKey]
             : commandTemplateToEditorText(template)
@@ -854,6 +1321,7 @@ function VendorTable({
             ? resolveCustomCommandText(
                 commandOverrides[commandKey],
                 availableProperties,
+                valueTransforms,
               )
             : compiledCommand
           const referencedProperties = getReferencedCommandProperties(
@@ -869,17 +1337,28 @@ function VendorTable({
             <li
               key={`${vendor}-${excelRow}`}
               className={`validation-commands__item ${
-                command.type === 'literal'
-                  ? 'validation-commands__item--literal'
-                  : ''
-              } ${
                 isCustomized ? 'validation-commands__item--dirty' : ''
+              } ${
+                copiedCommandKey === commandKey
+                  ? 'validation-commands__item--copied'
+                  : ''
               }`}
+              data-command-navigation="true"
+              tabIndex={0}
+              onKeyDown={handleCommandNavigation}
+              onCopy={(event) =>
+                handleCommandCopy(event, commandKey, resolvedCommand)
+              }
             >
               <span className="validation-commands__flag" aria-hidden="true">
                 <span className="validation-commands__flag-dot" />
               </span>
-              <span className="validation-commands__row">LINE {excelRow}</span>
+              <span
+                className="validation-commands__row"
+                title={commandTitle}
+              >
+                {commandTitle}
+              </span>
               <CommandEditor
                 commandText={editableCommand}
                 template={template}
@@ -893,19 +1372,30 @@ function VendorTable({
                 onCommandChange={(value) => onCommandChange(commandKey, value)}
                 availableProperties={availableProperties}
                 onPropertyValueChange={onPropertyValueChange}
+                valueTransforms={valueTransforms}
               />
-              {command.type === 'literal' ? (
-                <span className="validation-commands__literal-badge">
-                  Literal Excel
-                </span>
-              ) : null}
               <div className="validation-commands__item-actions">
                 <button
                   type="button"
+                  className={`validation-commands__item-action validation-commands__item-action--lock ${
+                    isLocked
+                      ? 'validation-commands__item-action--locked'
+                      : ''
+                  }`}
+                  aria-pressed={isLocked}
+                  onClick={() => onToggleCommandLock(commandKey)}
+                  aria-label={`${isLocked ? 'Desbloquear' : 'Bloquear'} comando de la fila ${excelRow}`}
+                >
+                  {isLocked ? (
+                    <LockIcon className="validation-commands__item-action-icon" />
+                  ) : (
+                    <LockSlashIcon className="validation-commands__item-action-icon" />
+                  )}
+                </button>
+                <button
+                  type="button"
                   className="validation-commands__item-action"
-                  onClick={() =>
-                    void navigator.clipboard.writeText(resolvedCommand)
-                  }
+                  onClick={() => copyCommand(commandKey, resolvedCommand)}
                   aria-label={`Copiar comando de la fila ${excelRow}`}
                 >
                   <CloneIcon className="validation-commands__item-action-icon" />
@@ -941,7 +1431,10 @@ function VendorTable({
             </li>
           )
         })}
-        {personalCommands.map((personalCommand, index) => {
+        {personalCommands.filter((personalCommand) => {
+          const personalCommandKey = `personal:${personalCommand.id}`
+          return isExpanded || lockedCommandKeys.has(personalCommandKey)
+        }).map((personalCommand, index) => {
           const isInitialized = personalCommand.baseline !== null
           const isDirty =
             isInitialized &&
@@ -958,20 +1451,48 @@ function VendorTable({
             personalCommand.value,
             availableProperties,
           )
+          const personalCommandKey = `personal:${personalCommand.id}`
+          const isLocked = lockedCommandKeys.has(personalCommandKey)
 
           return (
             <li
               key={personalCommand.id}
               className={`validation-commands__item validation-commands__item--personal ${
                 isDirty ? 'validation-commands__item--dirty' : ''
+              } ${
+                copiedCommandKey === personalCommandKey
+                  ? 'validation-commands__item--copied'
+                  : ''
               }`}
+              data-command-navigation="true"
+              tabIndex={0}
+              onKeyDown={handleCommandNavigation}
+              onCopy={(event) =>
+                handleCommandCopy(
+                  event,
+                  personalCommandKey,
+                  resolvedCommand,
+                )
+              }
             >
               <span className="validation-commands__flag" aria-hidden="true">
                 <span className="validation-commands__flag-dot" />
               </span>
-              <span className="validation-commands__row">
-                CUSTOM {index + 1}
-              </span>
+              <input
+                type="text"
+                className="validation-commands__title-input"
+                value={personalCommand.title}
+                maxLength={20}
+                placeholder={`Personal ${index + 1}`}
+                aria-label={`Título del comando personalizado ${index + 1}`}
+                title={personalCommand.title || `Personal ${index + 1}`}
+                onChange={(event) =>
+                  onPersonalCommandTitleChange(
+                    personalCommand.id,
+                    event.target.value.slice(0, 20),
+                  )
+                }
+              />
               <CommandEditor
                 commandText={personalCommand.value}
                 template=""
@@ -996,9 +1517,26 @@ function VendorTable({
                 <div className="validation-commands__item-actions">
                   <button
                     type="button"
+                    className={`validation-commands__item-action validation-commands__item-action--lock ${
+                      isLocked
+                        ? 'validation-commands__item-action--locked'
+                        : ''
+                    }`}
+                    aria-pressed={isLocked}
+                    onClick={() => onToggleCommandLock(personalCommandKey)}
+                    aria-label={`${isLocked ? 'Desbloquear' : 'Bloquear'} comando personalizado ${index + 1}`}
+                  >
+                    {isLocked ? (
+                      <LockIcon className="validation-commands__item-action-icon" />
+                    ) : (
+                      <LockSlashIcon className="validation-commands__item-action-icon" />
+                    )}
+                  </button>
+                  <button
+                    type="button"
                     className="validation-commands__item-action"
                     onClick={() =>
-                      void navigator.clipboard.writeText(resolvedCommand)
+                      copyCommand(personalCommandKey, resolvedCommand)
                     }
                     aria-label={`Copiar comando personalizado ${index + 1}`}
                   >
@@ -1048,17 +1586,19 @@ function VendorTable({
             </li>
           )
         })}
-        <li className="validation-commands__item validation-commands__item--add">
-          <button
-            type="button"
-            className="validation-commands__add-command"
-            onClick={() => onPersonalCommandAdd(vendor)}
-            aria-label={`Agregar comando personalizado para ${label}`}
-          >
-            <PlusLargeIcon className="validation-commands__add-command-icon" />
-            <span>Agregar línea personal</span>
-          </button>
-        </li>
+        {isExpanded ? (
+          <li className="validation-commands__item validation-commands__item--add">
+            <button
+              type="button"
+              className="validation-commands__add-command"
+              onClick={() => onPersonalCommandAdd(vendor, commandSection)}
+              aria-label={`Agregar comando personalizado para ${label}`}
+            >
+              <PlusLargeIcon className="validation-commands__add-command-icon" />
+              <span>Agregar línea personal</span>
+            </button>
+          </li>
+        ) : null}
       </ol>
     </section>
   )
@@ -1093,11 +1633,42 @@ function ValidationCommandsPanel({
   const [personalCommands, setPersonalCommands] = useState<PersonalCommand[]>(
     readStoredPersonalCommands,
   )
-  const [isExpanded, setIsExpanded] = useState(
-    readStoredValidationCommandsExpanded,
+  const [lockedCommandKeys, setLockedCommandKeys] = useState(
+    readStoredLockedCommands,
   )
-  const [isDisclosureAnimating, setIsDisclosureAnimating] = useState(false)
-  const disclosureAnimationTimerRef = useRef<number | null>(null)
+  const [expandedSections, setExpandedSections] = useState({
+    validation: readStoredCommandsExpanded(
+      validationCommandsExpandedStorageKey,
+    ),
+    search: readStoredCommandsExpanded(searchCommandsExpandedStorageKey),
+    'serial-change': readStoredCommandsExpanded(
+      serialChangeCommandsExpandedStorageKey,
+    ),
+    'password-change': readStoredCommandsExpanded(
+      passwordChangeCommandsExpandedStorageKey,
+    ),
+    'profile-change': readStoredCommandsExpanded(
+      profileChangeCommandsExpandedStorageKey,
+    ),
+    'delete-igmp': readStoredCommandsExpanded(
+      deleteIgmpCommandsExpandedStorageKey,
+    ),
+    'delete-vlan-service': readStoredCommandsExpanded(
+      deleteVlanServiceCommandsExpandedStorageKey,
+    ),
+  })
+  const [animatingSections, setAnimatingSections] = useState({
+    validation: false,
+    search: false,
+    'serial-change': false,
+    'password-change': false,
+    'profile-change': false,
+    'delete-igmp': false,
+    'delete-vlan-service': false,
+  })
+  const disclosureAnimationTimerRef = useRef<
+    Partial<Record<CommandSection, number>>
+  >({})
   const visibleVendor =
     vendorOverride?.ip === normalizedIp
       ? vendorOverride.vendor
@@ -1106,6 +1677,19 @@ function ValidationCommandsPanel({
     slot: slot.trim(),
     port: port.trim(),
     onuid: onuid.trim(),
+    password:
+      availableProperties.find((property) => property.label === 'PASSWORD')
+        ?.value.trim() ?? '',
+    networkvlan:
+      availableProperties.find(
+        (property) => property.label === 'NETWORKVLAN',
+      )?.value.trim() ?? '',
+    innervlan:
+      availableProperties.find((property) => property.label === 'INNERVLAN')
+        ?.value.trim() ?? '',
+    profiledata:
+      availableProperties.find((property) => property.label === 'PROFILEDATA')
+        ?.value.trim() ?? '',
   }
   const commandTones: CommandTones = {
     ...defaultCommandTones,
@@ -1128,41 +1712,101 @@ function ValidationCommandsPanel({
 
   useEffect(() => {
     window.localStorage.setItem(
-      validationCommandsExpandedStorageKey,
-      String(isExpanded),
+      lockedCommandsStorageKey,
+      JSON.stringify(Array.from(lockedCommandKeys)),
     )
-  }, [isExpanded])
+  }, [lockedCommandKeys])
+
+  useEffect(() => {
+    window.localStorage.setItem(
+      validationCommandsExpandedStorageKey,
+      String(expandedSections.validation),
+    )
+    window.localStorage.setItem(
+      searchCommandsExpandedStorageKey,
+      String(expandedSections.search),
+    )
+    window.localStorage.setItem(
+      serialChangeCommandsExpandedStorageKey,
+      String(expandedSections['serial-change']),
+    )
+    window.localStorage.setItem(
+      passwordChangeCommandsExpandedStorageKey,
+      String(expandedSections['password-change']),
+    )
+    window.localStorage.setItem(
+      profileChangeCommandsExpandedStorageKey,
+      String(expandedSections['profile-change']),
+    )
+    window.localStorage.setItem(
+      deleteIgmpCommandsExpandedStorageKey,
+      String(expandedSections['delete-igmp']),
+    )
+    window.localStorage.setItem(
+      deleteVlanServiceCommandsExpandedStorageKey,
+      String(expandedSections['delete-vlan-service']),
+    )
+  }, [expandedSections])
 
   useEffect(
     () => () => {
-      if (disclosureAnimationTimerRef.current !== null) {
-        window.clearTimeout(disclosureAnimationTimerRef.current)
+      for (const timer of Object.values(
+        disclosureAnimationTimerRef.current,
+      )) {
+        window.clearTimeout(timer)
       }
     },
     [],
   )
 
-  function finishDisclosureAnimation() {
-    if (disclosureAnimationTimerRef.current !== null) {
-      window.clearTimeout(disclosureAnimationTimerRef.current)
-      disclosureAnimationTimerRef.current = null
+  function finishDisclosureAnimation(section: CommandSection) {
+    const currentTimer = disclosureAnimationTimerRef.current[section]
+
+    if (currentTimer !== undefined) {
+      window.clearTimeout(currentTimer)
+      delete disclosureAnimationTimerRef.current[section]
     }
 
-    setIsDisclosureAnimating(false)
+    setAnimatingSections((currentSections) => ({
+      ...currentSections,
+      [section]: false,
+    }))
   }
 
-  function toggleDisclosure() {
-    setIsDisclosureAnimating(true)
-    setIsExpanded((currentValue) => !currentValue)
+  function toggleDisclosure(section: CommandSection) {
+    setAnimatingSections((currentSections) => ({
+      ...currentSections,
+      [section]: true,
+    }))
+    setExpandedSections((currentSections) => ({
+      ...currentSections,
+      [section]: !currentSections[section],
+    }))
 
-    if (disclosureAnimationTimerRef.current !== null) {
-      window.clearTimeout(disclosureAnimationTimerRef.current)
+    const currentTimer = disclosureAnimationTimerRef.current[section]
+
+    if (currentTimer !== undefined) {
+      window.clearTimeout(currentTimer)
     }
 
-    disclosureAnimationTimerRef.current = window.setTimeout(
-      finishDisclosureAnimation,
+    disclosureAnimationTimerRef.current[section] = window.setTimeout(
+      () => finishDisclosureAnimation(section),
       420,
     )
+  }
+
+  function toggleCommandLock(commandKey: string) {
+    setLockedCommandKeys((currentKeys) => {
+      const nextKeys = new Set(currentKeys)
+
+      if (nextKeys.has(commandKey)) {
+        nextKeys.delete(commandKey)
+      } else {
+        nextKeys.add(commandKey)
+      }
+
+      return nextKeys
+    })
   }
 
   if (!values.slot || !values.port || !values.onuid || !visibleVendor) {
@@ -1173,67 +1817,18 @@ function ValidationCommandsPanel({
     visibleVendor === 'nokia' ? 'huawei' : 'nokia'
   const alternateLabel = alternateVendor === 'nokia' ? 'Nokia' : 'Huawei'
 
-  return (
-    <section
-      className={`validation-commands ${
-        isExpanded ? '' : 'validation-commands--collapsed'
-      } ${
-        isDisclosureAnimating ? 'validation-commands--animating' : ''
-      } validation-commands--vendor-${visibleVendor}`}
-    >
-      <div className="validation-commands__header">
-        <button
-          type="button"
-          className="validation-commands__disclosure"
-          aria-expanded={isExpanded}
-          aria-controls="validation-commands-content"
-          onClick={toggleDisclosure}
-        >
-          <span
-            className="validation-commands__disclosure-icon"
-            aria-hidden="true"
-          />
-          <span className="validation-commands__disclosure-copy">
-            <span className="validation-commands__eyebrow">
-              (datos de servicio)
-            </span>
-            <span className="validation-commands__title">
-              Comandos de validación
-            </span>
-          </span>
-        </button>
-
-        {isExpanded ? (
-          <button
-            type="button"
-            className="validation-commands__toggle"
-            onClick={() =>
-              setVendorOverride({ ip: normalizedIp, vendor: alternateVendor })
-            }
-          >
-            Ver tabla {alternateLabel}
-          </button>
-        ) : null}
-      </div>
-
-      <div
-        id="validation-commands-content"
-        className="validation-commands__content"
-        aria-hidden={!isExpanded}
-        inert={isExpanded ? undefined : true}
-        onTransitionEnd={(event) => {
-          if (
-            event.target === event.currentTarget &&
-            event.propertyName === 'grid-template-rows'
-          ) {
-            finishDisclosureAnimation()
-          }
-        }}
-      >
-        <div className="validation-commands__content-inner">
-          <VendorTable
-        vendor={visibleVendor}
-        isDetected={visibleVendor === detectedVendor}
+  function renderVendorTable(
+    commandSection: CommandSection,
+    commandRows: ValidationRow[],
+    commandTitleMap: Record<Vendor, Record<number, string>>,
+    isExpanded: boolean,
+  ) {
+    return (
+      <VendorTable
+        vendor={visibleVendor as Vendor}
+        commandSection={commandSection}
+        commandRows={commandRows}
+        commandTitleMap={commandTitleMap}
         values={values}
         tones={commandTones}
         highlightedLabel={highlightedLabel}
@@ -1259,19 +1854,31 @@ function ValidationCommandsPanel({
         personalCommands={personalCommands.filter(
           (command) =>
             command.scope === normalizedIp &&
-            command.vendor === visibleVendor,
+            command.vendor === visibleVendor &&
+            command.section === commandSection,
         )}
-        onPersonalCommandAdd={(vendor) =>
+        onPersonalCommandAdd={(vendor, section) =>
           setPersonalCommands((currentCommands) => [
             ...currentCommands,
             {
               id: createPersonalCommandId(),
               scope: normalizedIp,
               vendor,
+              section,
+              title: '',
               baseline: null,
               value: '',
             },
           ])
+        }
+        onPersonalCommandTitleChange={(commandId, title) =>
+          setPersonalCommands((currentCommands) =>
+            currentCommands.map((command) =>
+              command.id === commandId
+                ? { ...command, title: title.slice(0, 20) }
+                : command,
+            ),
+          )
         }
         onPersonalCommandChange={(commandId, value) =>
           setPersonalCommands((currentCommands) =>
@@ -1304,16 +1911,172 @@ function ValidationCommandsPanel({
             ),
           )
         }
-        onPersonalCommandDelete={(commandId) =>
+        onPersonalCommandDelete={(commandId) => {
           setPersonalCommands((currentCommands) =>
             currentCommands.filter((command) => command.id !== commandId),
           )
-        }
-            onPropertyValueChange={onPropertyValueChange}
-            onPropertyValueReset={onPropertyValueReset}
-          />
+          setLockedCommandKeys((currentKeys) => {
+            const nextKeys = new Set(currentKeys)
+            nextKeys.delete(`personal:${commandId}`)
+            return nextKeys
+          })
+        }}
+        isExpanded={isExpanded}
+        lockedCommandKeys={lockedCommandKeys}
+        onToggleCommandLock={toggleCommandLock}
+        onPropertyValueChange={onPropertyValueChange}
+        onPropertyValueReset={onPropertyValueReset}
+      />
+    )
+  }
+
+  function renderCommandGroup(
+    section: CommandSection,
+    title: string,
+    commandRows: ValidationRow[],
+    commandTitleMap: Record<Vendor, Record<number, string>>,
+  ) {
+    const isExpanded = expandedSections[section]
+    const currentVendor = visibleVendor as Vendor
+    const vendorLabel = currentVendor === 'nokia' ? 'Nokia' : 'Huawei'
+    const detectedLabel = currentVendor === detectedVendor ? ' (Detectado)' : ''
+    const hasLockedCommands =
+      commandRows.some(
+        (row) =>
+          Boolean(row[currentVendor]) &&
+          lockedCommandKeys.has(
+            `${normalizedIp}:${section}:${currentVendor}:${row.excelRow}`,
+          ),
+      ) ||
+      personalCommands.some(
+        (command) =>
+          command.scope === normalizedIp &&
+          command.vendor === currentVendor &&
+          command.section === section &&
+          command.baseline !== null &&
+          lockedCommandKeys.has(`personal:${command.id}`),
+      )
+    const isContentVisible = isExpanded || hasLockedCommands
+
+    return (
+      <section
+        className={`validation-commands__group ${
+          isExpanded ? '' : 'validation-commands--collapsed'
+        } ${
+          !isExpanded && hasLockedCommands
+            ? 'validation-commands--collapsed-with-locked'
+            : ''
+        } ${
+          animatingSections[section] ? 'validation-commands--animating' : ''
+        } validation-commands--vendor-${currentVendor}`}
+      >
+        <div className="validation-commands__header">
+          <button
+            type="button"
+            className="validation-commands__disclosure"
+            aria-expanded={isExpanded}
+            aria-controls={`${section}-commands-content`}
+            onClick={() => toggleDisclosure(section)}
+          >
+            <span
+              className="validation-commands__disclosure-icon"
+              aria-hidden="true"
+            />
+            <span className="validation-commands__disclosure-copy">
+              <span className="validation-commands__title">
+                {title} - {vendorLabel}{detectedLabel}
+              </span>
+            </span>
+          </button>
+
+          {isExpanded ? (
+            <button
+              type="button"
+              className="validation-commands__toggle"
+              onClick={() =>
+                setVendorOverride({ ip: normalizedIp, vendor: alternateVendor })
+              }
+            >
+              Ver tabla {alternateLabel}
+            </button>
+          ) : null}
         </div>
+
+        <div
+          id={`${section}-commands-content`}
+          className="validation-commands__content"
+          aria-hidden={!isContentVisible}
+          inert={isContentVisible ? undefined : true}
+          onTransitionEnd={(event) => {
+            if (
+              event.target === event.currentTarget &&
+              event.propertyName === 'grid-template-rows'
+            ) {
+              finishDisclosureAnimation(section)
+            }
+          }}
+        >
+          <div className="validation-commands__content-inner">
+            {renderVendorTable(
+              section,
+              commandRows,
+              commandTitleMap,
+              isExpanded,
+            )}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  return (
+    <section className="validation-commands">
+      <div className="validation-commands__section-heading">
+        <h3>Tabla de Comandos</h3>
       </div>
+
+      {renderCommandGroup(
+        'validation',
+        'Validación',
+        validationCommandRows,
+        commandTitles,
+      )}
+      {renderCommandGroup(
+        'search',
+        'Buscar',
+        searchCommandRows,
+        searchCommandTitles,
+      )}
+      {renderCommandGroup(
+        'serial-change',
+        'Cambio de Serial',
+        serialChangeCommandRows,
+        serialChangeCommandTitles,
+      )}
+      {renderCommandGroup(
+        'password-change',
+        'Cambio de Password',
+        passwordChangeCommandRows,
+        passwordChangeCommandTitles,
+      )}
+      {renderCommandGroup(
+        'profile-change',
+        'Cambio de Perfil',
+        profileChangeCommandRows,
+        profileChangeCommandTitles,
+      )}
+      {renderCommandGroup(
+        'delete-igmp',
+        'Eliminar Servicio IGMP',
+        deleteIgmpCommandRows,
+        deleteIgmpCommandTitles,
+      )}
+      {renderCommandGroup(
+        'delete-vlan-service',
+        'Eliminar Servicio VLAN',
+        deleteVlanServiceCommandRows,
+        deleteVlanServiceCommandTitles,
+      )}
     </section>
   )
 }

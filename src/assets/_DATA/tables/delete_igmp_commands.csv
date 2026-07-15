@@ -1,0 +1,5 @@
+excelRow,huaweiType,huaweiTemplate,nokiaType,nokiaTemplate
+56,command,"btv",command,"configure equipment ont interface 1/1/{slot}/{port}/{onuid} admin-state down"
+57,command,"7530",command,"configure equipment ont no interface 1/1/{slot}/{port}/{onuid}"
+58,command,"Y",,
+59,command,"quit",,

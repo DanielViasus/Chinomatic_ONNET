@@ -1,0 +1,4 @@
+excelRow,huaweiType,huaweiTemplate,nokiaType,nokiaTemplate
+45,command,"config",command,"configure equipment ont interface 1/1/{slot}/{port}/{onuid} admin-state down"
+46,command,"interface gpon 0/{slot}",command,"configure equipment ont interface 1/1/{slot}/{port}/{onuid} sernum {password}"
+47,command,"ont modify {port} {onuid} sn {password}",command,"configure equipment ont interface 1/1/{slot}/{port}/{onuid} admin-state up"

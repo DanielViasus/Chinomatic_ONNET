@@ -72,6 +72,7 @@ const comparableDataLabels = [
 ] as const
 
 type ComparableDataLabel = (typeof comparableDataLabels)[number]
+type ResettableCommandDataLabel = ComparableDataLabel | 'INNERVLAN'
 type ComparableValuesMap = Partial<Record<ComparableDataLabel, string>>
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -1002,7 +1003,7 @@ function App() {
     primaryController?.setValue(itemId, nextValue)
   }
 
-  function handleValidationValuesReset(labels: ComparableDataLabel[]) {
+  function handleValidationValuesReset(labels: ResettableCommandDataLabel[]) {
     const originalValues = getPrimaryComparableValues(parsedJson)
 
     for (const label of labels) {
@@ -1011,7 +1012,14 @@ function App() {
       )
 
       if (item) {
-        primaryController?.setValue(item.id, originalValues[label] ?? '')
+        const originalValue =
+          label === 'INNERVLAN'
+            ? formatComparableValue(
+                readJsonPath(parsedJson, 'properties.innerVlanData'),
+              )
+            : originalValues[label] ?? ''
+
+        primaryController?.setValue(item.id, originalValue)
       }
     }
   }

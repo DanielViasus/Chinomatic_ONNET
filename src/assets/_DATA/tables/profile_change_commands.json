@@ -1,0 +1,20 @@
+[
+  {
+    "excelRow": 53,
+    "huawei": null,
+    "nokia": {
+      "type": "command",
+      "template": "configure qos interface 1/1/{slot}/{port}/{onuid}/1/1 queue 0 shaper-profile name:{profiledata}",
+      "sourceFormula": "=\"configure qos interface 1/1/\"&A3&\"/\"&A4&\"/\"&A5&\"/1/1 queue 0 shaper-profile name:\"&A10&\"\""
+    }
+  },
+  {
+    "excelRow": 54,
+    "huawei": null,
+    "nokia": {
+      "type": "command",
+      "template": "Z",
+      "sourceFormula": null
+    }
+  }
+]

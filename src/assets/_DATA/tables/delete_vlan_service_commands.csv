@@ -1,0 +1,6 @@
+excelRow,huaweiType,huaweiTemplate,nokiaType,nokiaTemplate
+61,command,"7526",,
+62,command,"7527",,
+63,command,"7530",,
+64,command,"interface gpon 0/{slot}",,
+65,command,"ont delete {port} {onuid}",,

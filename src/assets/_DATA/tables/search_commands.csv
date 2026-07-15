@@ -1,0 +1,10 @@
+excelRow,huaweiType,huaweiTemplate,nokiaType,nokiaTemplate
+34,command,"display Vlan {networkvlan} | include {innervlan}",command,"info configure bridge flat | match exact:stacked:{networkvlan}:{innervlan}"
+35,command,"display mac-address vlan 3104",command,"info configure vlan id stacked:{networkvlan}:{innervlan}"
+36,command,"display vlan all",command,"info configure service | match exact:""custom"""
+37,command,"display port vlan 0/{slot}/{port}",,
+38,command,"display ont autofind all",command,"show pon unprovision-onu"
+39,command,"display ont info by-sn {password}",command,"show service service-using"
+40,command,"display ont info by-password {password}",,
+41,command,"display ont info summary 0/{slot}/{port}",command,"show equipment ont operational-data 1/1/{slot}/{port}/{onuid}"
+42,,,command,"show qos profile-usage shaper"

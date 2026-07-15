@@ -1,0 +1,47 @@
+[
+  {
+    "excelRow": 61,
+    "huawei": {
+      "type": "command",
+      "template": "7526",
+      "sourceFormula": null
+    },
+    "nokia": null
+  },
+  {
+    "excelRow": 62,
+    "huawei": {
+      "type": "command",
+      "template": "7527",
+      "sourceFormula": null
+    },
+    "nokia": null
+  },
+  {
+    "excelRow": 63,
+    "huawei": {
+      "type": "command",
+      "template": "7530",
+      "sourceFormula": null
+    },
+    "nokia": null
+  },
+  {
+    "excelRow": 64,
+    "huawei": {
+      "type": "command",
+      "template": "interface gpon 0/{slot}",
+      "sourceFormula": "=\"interface gpon 0/\"&A3&\"\""
+    },
+    "nokia": null
+  },
+  {
+    "excelRow": 65,
+    "huawei": {
+      "type": "command",
+      "template": "ont delete {port} {onuid}",
+      "sourceFormula": "=\"ont delete \"&A4&\" \"&A5&\"\""
+    },
+    "nokia": null
+  }
+]
